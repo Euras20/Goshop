@@ -485,15 +485,15 @@
             "use strict";
 
             const products = [
-            { id: 5, name: "Massager Sérénité", price: 89, category: "wellness", rating: 5, image: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?q=80&w=800&auto=format&fit=crop", description: "Ultra-silencieux · Silicone médical · Design élégant discret." },
-                { id: 6, name: "Soin Personnel Aura", price: 119, category: "wellness", rating: 4.5, image: "https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?q=80&w=800&auto=format&fit=crop", description: "Étanche · Rechargeable USB · Compagnon bien-être sophistiqué." },
-                { id: 7, name: "Porte-cartes Cuir", price: 55, category: "accessories", rating: 4, image: "https://images.unsplash.com/photo-1627123424574-724758594e93?q=80&w=800&auto=format&fit=crop", description: "Cuir pleine fleur minimaliste." },
-                { id: 8, name: "Lunettes Aviateur", price: 78, category: "accessories", rating: 4.5, image: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?q=80&w=800&auto=format&fit=crop", description: "Polarisé · Design intemporel." },
-                { id: 1, name: "Pendentif Aurora", price: 189, category: "jewelry", rating: 5, image: "https://images.unsplash.com/photo-1599643478518-a784e5b0711e?q=80&w=800&auto=format&fit=crop", description: "14k gold‑plated necklace with ethically sourced zirconia." },
-                { id: 2, name: "Bracelet Infini", price: 129, category: "jewelry", rating: 4.5, image: "https://images.unsplash.com/photo-1611591437281-390bfb122a4f?q=80&w=800&auto=format&fit=crop", description: "Argent sterling, ajustable, pièce élégante quotidienne." },
-                { id: 3, name: "HydroFlask 24oz", price: 44, category: "bottles", rating: 5, image: "https://images.unsplash.com/photo-1602143407151-7111542de596?q=80&w=800&auto=format&fit=crop", description: "Isolation sous vide double paroi · 24h froid / 12h chaud · Acier inoxydable sans BPA." },
-                { id: 4, name: "Gobelet Métallique", price: 39, category: "bottles", rating: 4.5, image: "https://images.unsplash.com/photo-1625591334160-541f82c6f2d0?q=80&w=800&auto=format&fit=crop", description: "Doublure cuivre anti-condensation · Garde les boissons parfaites · Construction métallique." },
-                { id: 9, name: "Boucles d'Oreilles Perle", price: 210, category: "jewelry", rating: 5, image: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?q=80&w=800&auto=format&fit=crop", description: "Perle d'eau douce avec accents or 18k." }
+            { id: 5, name: "Massager Sérénité", price: 8000, category: "wellness", rating: 5, image: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?q=80&w=800&auto=format&fit=crop", description: "Ultra-silencieux · Silicone médical · Design élégant discret." },
+                { id: 6, name: "Soin Personnel Aura", price: 11900, category: "wellness", rating: 4.5, image: "https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?q=80&w=800&auto=format&fit=crop", description: "Étanche · Rechargeable USB · Compagnon bien-être sophistiqué." },
+                { id: 7, name: "Porte-cartes Cuir", price: 5000, category: "accessories", rating: 4, image: "https://images.unsplash.com/photo-1627123424574-724758594e93?q=80&w=800&auto=format&fit=crop", description: "Cuir pleine fleur minimaliste." },
+                { id: 8, name: "Lunettes Aviateur", price: 7800, category: "accessories", rating: 4.5, image: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?q=80&w=800&auto=format&fit=crop", description: "Polarisé · Design intemporel." },
+                { id: 1, name: "Pendentif Aurora", price: 18900, category: "jewelry", rating: 5, image: "https://images.unsplash.com/photo-1599643478518-a784e5b0711e?q=80&w=800&auto=format&fit=crop", description: "14k gold‑plated necklace with ethically sourced zirconia." },
+                { id: 2, name: "Bracelet Infini", price: 1200, category: "jewelry", rating: 4.5, image: "https://images.unsplash.com/photo-1611591437281-390bfb122a4f?q=80&w=800&auto=format&fit=crop", description: "Argent sterling, ajustable, pièce élégante quotidienne." },
+                { id: 3, name: "HydroFlask 24oz", price: 4500, category: "bottles", rating: 5, image: "https://images.unsplash.com/photo-1602143407151-7111542de596?q=80&w=800&auto=format&fit=crop", description: "Isolation sous vide double paroi · 24h froid / 12h chaud · Acier inoxydable sans BPA." },
+                { id: 4, name: "Gobelet Métallique", price: 3400, category: "bottles", rating: 4.5, image: "https://images.unsplash.com/photo-1625591334160-541f82c6f2d0?q=80&w=800&auto=format&fit=crop", description: "Doublure cuivre anti-condensation · Garde les boissons parfaites · Construction métallique." },
+                { id: 9, name: "Boucles d'Oreilles Perle", price: 21000, category: "jewelry", rating: 5, image: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?q=80&w=800&auto=format&fit=crop", description: "Perle d'eau douce avec accents or 18k." }
             ];
 
             let cart = JSON.parse(localStorage.getItem('goshopt_cart')) || [];
@@ -513,12 +513,12 @@
                 cartCounterSpan.textContent = totalItems;
                 drawerItemCountSpan.textContent = totalItems;
                 const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-                cartTotalSpan.textContent = `$${totalPrice}`;
+                cartTotalSpan.textContent = `${totalPrice} F`;
                 if (cart.length === 0) {
                     cartItemsContainer.innerHTML = `<p class="text-gray-400 text-center py-8">Votre panier est vide</p>`;
                 } else {
                     cartItemsContainer.innerHTML = cart.map(item => `
-                        <div class="flex gap-3 items-center border-b pb-3"><img src="${item.image}" class="w-16 h-16 rounded-xl object-cover" /><div class="flex-1"><p class="font-semibold">${item.name}</p><p class="text-sm text-gray-500">$${item.price} x ${item.quantity}</p></div><div class="flex items-center gap-2"><button data-remove="${item.id}" class="text-red-400 text-xl remove-item">−</button><span class="w-5 text-center">${item.quantity}</span><button data-add="${item.id}" class="text-brand text-xl add-item">+</button></div></div>
+                        <div class="flex gap-3 items-center border-b pb-3"><img src="${item.image}" class="w-16 h-16 rounded-xl object-cover" /><div class="flex-1"><p class="font-semibold">${item.name}</p><p class="text-sm text-gray-500">${item.price} F x ${item.quantity}</p></div><div class="flex items-center gap-2"><button data-remove="${item.id}" class="text-red-400 text-xl remove-item">−</button><span class="w-5 text-center">${item.quantity}</span><button data-add="${item.id}" class="text-brand text-xl add-item">+</button></div></div>
                     `).join('');
                     document.querySelectorAll('.remove-item').forEach(btn => { btn.addEventListener('click', () => { const id = Number(btn.dataset.remove); const existing = cart.find(p => p.id === id); if (existing) { if (existing.quantity > 1) existing.quantity--; else cart = cart.filter(p => p.id !== id); } saveCartAndUpdate(); }); });
                     document.querySelectorAll('.add-item').forEach(btn => { btn.addEventListener('click', () => { const id = Number(btn.dataset.add); const product = products.find(p => p.id === id); if (product) addToCart(product); }); });
@@ -566,7 +566,7 @@
                         <div class="px-1 flex-grow flex flex-col mt-2 md:mt-3">
                             <div class="flex items-start justify-between gap-2 mb-1">
                                 <h3 class="text-gray-900 leading-tight line-clamp-1 flex-1">${prod.name}</h3>
-                                <span class="price-tag bg-gray-100 text-gray-900 rounded-full font-bold whitespace-nowrap">$${prod.price}</span>
+                                <span class="price-tag bg-gray-100 text-gray-900 rounded-full font-bold whitespace-nowrap">${prod.price} F</span>
                             </div>
                             <p class="text-gray-500 text-xs md:text-sm mt-1 md:mt-2 leading-relaxed line-clamp-2">${prod.description}</p>
                         </div>
