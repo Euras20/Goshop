@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>GoShop 2.0 — Premium Lifestyle & Wellness</title>
+    <!-- Tailwind + DaisyUI -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.7.2/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: '#0BB2A4',
+                        soft: '#F8F9FA',
+                        dark: '#1a1a2e',
+                        'pink-btn': '#F4A6B5',
+                        'pink-btn-hover': '#E895A5',
+                    },
+                    fontFamily: {
+                        sans: ['Satoshi', 'Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://api.fontshare.com/v2/css?f[]=satoshi@700,500,400&display=swap');
+        .glass-nav { backdrop-filter: blur(16px); background: rgba(255, 255, 255, 0.85); border-top: 1px solid rgba(0,0,0,0.05); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .cart-drawer { transition: transform 0.3s ease; }
+
+        /* Carousel animations */
+        .carousel-slide {
+            opacity: 0;
+            transition: opacity 0.8s ease-in-out;
+            position: absolute;
+            inset: 0;
+        }
+        .carousel-slide.active {
+            opacity: 1;
+        }
+
+        /* Rating stars */
+        .rating-stars {
+            color: #fbbf24;
+            letter-spacing: 2px;
+        }
+
+        /* Product card image container */
+        .product-image-container {
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* ============================================
+           MOBILE LAYOUT (from index.html) - Compact Tiles
+           ============================================ */
+        @media (max-width: 640px) {
+            .mobile-tile-grid {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.75rem;
+            }
+
+            .mobile-tile-card {
+                border-radius: 16px;
+                padding: 0.5rem;
+                background: white;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+                border: 1px solid #f1f5f9;
+            }
+
+            .mobile-tile-card .product-image-container {
+                aspect-ratio: 1/1;
+                border-radius: 12px;
+            }
+
+            .mobile-tile-card h3 {
+                font-size: 0.9rem;
+                line-height: 1.25rem;
+                font-weight: 700;
+            }
+
+            .mobile-tile-card .price-tag {
+                font-size: 0.9rem;
+                padding: 0.25rem 0.5rem;
+                background: #f3f4f6;
+            }
+
+            .mobile-tile-card .buy-btn {
+                padding: 0.6rem 0.5rem;
+                font-size: 0.75rem;
+            }
+
+            .mobile-tile-card .cart-icon-btn {
+                width: 38px;
+                height: 38px;
+            }
+
+            /* reduce banner on mobile */
+            .hero-carousel {
+                height: 180px !important;
+            }
+
+            /* Hide desktop-only elements on mobile */
+            .desktop-card-badge {
+                display: none !important;
+            }
+        }
+
+        /* ============================================
+           DESKTOP LAYOUT (from product.html) - Spacious Cards
+           WITHOUT the max-w-6xl constraint (full width)
+           ============================================ */
+        @media (min-width: 641px) {
+            .mobile-tile-card {
+                border-radius: 24px;
+                padding: 1rem;
+                background: white;
+                box-shadow: 0 8px 30px rgba(0,0,0,0.04);
+                transition: all 0.3s ease;
+            }
+
+            .mobile-tile-card:hover {
+                box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+            }
+
+            .mobile-tile-card .product-image-container {
+                aspect-ratio: 4/3;
+                border-radius: 20px;
+                margin-bottom: 0.75rem;
+            }
+
+            /* Desktop badges visible */
+            .desktop-card-badge {
+                display: block;
+            }
+
+            .mobile-tile-card h3 {
+                font-size: 1.125rem;
+                line-height: 1.5rem;
+                font-weight: 700;
+            }
+
+            .mobile-tile-card .price-tag {
+                font-size: 1.125rem;
+                padding: 0.375rem 0.75rem;
+            }
+
+            .mobile-tile-card .buy-btn {
+                padding: 0.75rem 1rem;
+                font-size: 0.875rem;
+            }
+
+            .mobile-tile-card .cart-icon-btn {
+                width: 48px;
+                height: 48px;
+            }
+
+            /* Desktop category label */
+            .category-label {
+                position: absolute;
+                top: 0.75rem;
+                left: 0.75rem;
+                background: rgba(255,255,255,0.3);
+                backdrop-filter: blur(12px);
+                border: 1px solid rgba(255,255,255,0.2);
+                color: white;
+                font-size: 0.75rem;
+                font-weight: 600;
+                padding: 0.375rem 0.75rem;
+                border-radius: 9999px;
+                text-transform: capitalize;
+            }
+
+            /* Tech badge for bottles */
+            .tech-badge {
+                position: absolute;
+                bottom: 0.75rem;
+                left: 0.75rem;
+                background: rgba(0,0,0,0.7);
+                backdrop-filter: blur(4px);
+                color: white;
+                font-size: 0.625rem;
+                font-weight: 700;
+                padding: 0.375rem 0.75rem;
+                border-radius: 9999px;
+                letter-spacing: 0.05em;
+            }
+        }
+
+        /* Buy Now button styling */
+        .buy-now-btn {
+            background-color: #0BB2A4;
+            color: white;
+            border-radius: 9999px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-weight: 600;
+        }
+
+        .buy-now-btn:hover {
+            background-color: #0e4641;
+            transform: translateY(-1px);
+        }
+
+        .cart-icon-btn {
+            background-color: white;
+            color: #0BB2A4;
+            border-radius: 50%;
+            border: 1.5px solid #0BB2A4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .cart-icon-btn:hover {
+            background-color: #0BB2A4;
+            color: white;
+        }
+
+        /* Hero height adjustments */
+        @media (min-width: 768px) {
+            .hero-carousel {
+                height: 300px !important;
+            }
+        }
+    </style>
+<base target="_blank">
+<base target="_blank">
+</head>
+<body class="bg-[#F8F9FA] min-h-screen relative font-sans text-slate-800">
+
+    <!-- HEADER (unchanged) -->
+    <header class="sticky top-0 z-50 w-full bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm">
+        <div class="max-w-[1440px] mx-auto flex items-center justify-between px-4 md:px-8 py-4">
+            <div class="flex items-center gap-2">
+                <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-brand flex items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    </svg>
+                    GoShop <span class="font-light">2.0</span>
+                </h1>
+            </div>
+            <div class="hidden md:block flex-1 max-w-xl mx-8">
+                <div class="relative">
+                    <input type="text" placeholder="Search jewelry, bottles, wellness..." class="input w-full rounded-full bg-gray-100 border-none pl-12 focus:ring-2 ring-brand/30 transition-all shadow-inner" />
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                </div>
+            </div>
+            <div class="flex items-center gap-4 md:gap-6">
+                <nav class="hidden md:flex items-center gap-6 font-medium text-sm text-gray-600">
+                    <a href="#" class="hover:text-brand transition-colors">Shop</a>
+                    <a href="#" class="hover:text-brand transition-colors">Collections</a>
+                    <a href="#" class="hover:text-brand transition-colors">About</a>
+                </nav>
+                <div class="avatar placeholder cursor-pointer hidden md:flex">
+                    <div class="bg-gray-800 text-white rounded-full w-10">
+                        <span class="text-xs">JD</span>
+                    </div>
+                </div>
+                <button id="cartToggleBtn" class="btn btn-ghost btn-circle relative">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+                    <span id="cartCounter" class="badge bg-brand text-white badge-sm absolute top-1 right-1 border-none">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- HERO CAROUSEL SECTION — reduced height -->
+        <section class="max-w-[1440px] mx-auto w-full px-4 md:px-8 pt-6">
+            <div class="md:hidden w-full mb-6 relative">
+                <input type="text" placeholder="Search..." class="input w-full rounded-full bg-white border-none pl-12 focus:ring-2 ring-brand/30 shadow-sm" />
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+            </div>
+
+            <div class="relative w-full rounded-[32px] overflow-hidden shadow-xl mb-10 hero-carousel h-[180px] md:h-[300px]" id="autoCarousel"></div>
+
+            <div class="flex justify-center gap-2 -mt-8 mb-8 relative z-10">
+                <div id="carouselProgressDots" class="flex gap-2 bg-white/60 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm"></div>
+            </div>
+        </section>
+
+        <!-- TRUST BANNER (unchanged) 
+        <section class="bg-white border-y border-gray-100 py-6 md:py-8 mb-8">
+            <div class="max-w-[1440px] mx-auto px-4 md:px-8">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
+                    <div class="flex items-center gap-3 justify-center md:justify-start">
+                        <div class="bg-brand/10 p-3 rounded-full">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-brand" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        </div>
+                        <div><p class="font-bold text-sm md:text-base">Free Shipping</p><p class="text-xs text-gray-500">On orders over $50</p></div>
+                    </div>
+                    <div class="flex items-center gap-3 justify-center md:justify-start">
+                        <div class="bg-brand/10 p-3 rounded-full">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-brand" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                        </div>
+                        <div><p class="font-bold text-sm md:text-base">Secure Payment</p><p class="text-xs text-gray-500">256-bit encryption</p></div>
+                    </div>
+                    <div class="flex items-center gap-3 justify-center md:justify-start">
+                        <div class="bg-brand/10 p-3 rounded-full">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-brand" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                        </div>
+                        <div><p class="font-bold text-sm md:text-base">Easy Returns</p><p class="text-xs text-gray-500">30-day policy</p></div>
+                    </div>
+                    <div class="flex items-center gap-3 justify-center md:justify-start">
+                        <div class="bg-brand/10 p-3 rounded-full">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-brand" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </div>
+                        <div><p class="font-bold text-sm md:text-base">24/7 Support</p><p class="text-xs text-gray-500">Dedicated assistance</p></div>
+                    </div>
+                </div>
+            </div>
+        </section>--->
+
+        <!-- CATEGORIES -->
+        <section class="max-w-[1440px] mx-auto w-full px-4 md:px-8 mb-12">
+            <h2 class="text-2xl md:text-3xl font-bold mb-6">Shop by Category</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+                <div class="relative rounded-2xl overflow-hidden group cursor-pointer h-32 md:h-56"><img src="https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" /><div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-4"><h3 class="text-white font-bold text-lg">Jewelry</h3></div></div>
+                <div class="relative rounded-2xl overflow-hidden group cursor-pointer h-32 md:h-56"><img src="https://images.unsplash.com/photo-1602143407151-7111542de596?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" /><div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-4"><h3 class="text-white font-bold text-lg">Gym Bottles</h3></div></div>
+                <div class="relative rounded-2xl overflow-hidden group cursor-pointer h-32 md:h-56"><img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" /><div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-4"><h3 class="text-white font-bold text-lg">Wellness</h3></div></div>
+                <div class="relative rounded-2xl overflow-hidden group cursor-pointer h-32 md:h-56"><img src="https://images.unsplash.com/photo-1572635196237-14b3f281503f?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" /><div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-4"><h3 class="text-white font-bold text-lg">Accessories</h3></div></div>
+            </div>
+        </section>
+
+        <!-- PRODUCT CATALOG SECTION (Hybrid Layout) -->
+        <section class="max-w-[1440px] mx-auto w-full px-4 md:px-8">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl md:text-3xl font-bold">Featured Products</h2>
+                <a href="#" class="text-brand hover:underline text-sm font-medium">View All →</a>
+            </div>
+
+            <div class="flex gap-3 md:gap-4 overflow-x-auto pb-4 mb-6 no-scrollbar" id="categoryFilterContainer">
+                <button data-filter="all" class="filter-btn btn btn-sm md:btn-md rounded-full bg-gray-900 text-white px-6 md:px-8 border-none hover:bg-gray-800">All</button>
+                <button data-filter="jewelry" class="filter-btn btn btn-sm md:btn-md rounded-full bg-white text-gray-700 border-gray-200 px-6 md:px-8 hover:border-brand hover:text-brand shadow-sm">Jewelry</button>
+                <button data-filter="bottles" class="filter-btn btn btn-sm md:btn-md rounded-full bg-white text-gray-700 border-gray-200 px-6 md:px-8 hover:border-brand hover:text-brand shadow-sm">Gym Bottles</button>
+                <button data-filter="wellness" class="filter-btn btn btn-sm md:btn-md rounded-full bg-white text-gray-700 border-gray-200 px-6 md:px-8 hover:border-brand hover:text-brand shadow-sm">Wellness</button>
+                <button data-filter="accessories" class="filter-btn btn-sm md:btn-md rounded-full bg-white text-gray-700 border-gray-200 px-6 md:px-8 hover:border-brand hover:text-brand shadow-sm">Accessories</button>
+            </div>
+
+            <!-- 
+                HYBRID GRID:
+                - Mobile: 2 columns (compact tiles from index.html)
+                - Desktop: 4 columns (spacious cards from product.html)
+                - NO max-w-6xl constraint - uses full width
+            -->
+            <div id="productGrid" class="mobile-tile-grid grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 pb-12"></div>
+        </section>
+
+        <!-- OFFER BANNER -->
+        <section class="max-w-[1440px] mx-auto w-full px-4 md:px-8 mb-12">
+            <div class="bg-gradient-to-r from-brand to-brand/80 rounded-[32px] p-8 md:p-12 text-white relative overflow-hidden">
+                <div class="relative z-10 max-w-2xl">
+                    <span class="text-sm font-bold uppercase tracking-wider bg-white/20 px-4 py-1 rounded-full">Limited Time Offer</span>
+                    <h2 class="text-3xl md:text-4xl font-bold mt-4 mb-3">Get 20% Off Your First Order</h2>
+                    <p class="text-white/90 mb-6 text-lg">Subscribe to our newsletter and unlock exclusive discounts.</p>
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <input type="email" placeholder="Enter your email" class="input rounded-full bg-white text-gray-900 placeholder-gray-500 flex-1" />
+                        <button class="btn bg-white text-brand hover:bg-gray-100 rounded-full px-8 border-none">Claim Offer</button>
+                    </div>
+                </div>
+                <div class="absolute right-0 bottom-0 opacity-10"><svg class="w-64 h-64" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L2 7v10l10 5 10-5V7l-10-5z"/></svg></div>
+            </div>
+        </section>
+
+        <!-- TESTIMONIALS & NEWSLETTER (shortened) -->
+        <section class="max-w-[1440px] mx-auto w-full px-4 md:px-8 mb-12">
+            <h2 class="text-2xl md:text-3xl font-bold mb-6 text-center">What Our Customers Say</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-2xl p-6 shadow-sm"><div class="rating-stars text-xl mb-3">★★★★★</div><p class="text-gray-600 mb-4">"The HydroFlask is incredible! Keeps my water cold all day."</p><div class="flex items-center gap-3"><div class="bg-brand/20 rounded-full w-10 h-10 flex items-center justify-center font-bold text-brand">SJ</div><div><p class="font-semibold">Sarah Johnson</p><p class="text-xs text-gray-500">Verified Buyer</p></div></div></div>
+                <div class="bg-white rounded-2xl p-6 shadow-sm"><div class="rating-stars text-xl mb-3">★★★★★</div><p class="text-gray-600 mb-4">"Absolutely love my Aurora Pendant. Exceptional craftsmanship."</p><div class="flex items-center gap-3"><div class="bg-brand/20 rounded-full w-10 h-10 flex items-center justify-center font-bold text-brand">MC</div><div><p class="font-semibold">Michael Chen</p><p class="text-xs text-gray-500">Verified Buyer</p></div></div></div>
+                <div class="bg-white rounded-2xl p-6 shadow-sm"><div class="rating-stars text-xl mb-3">★★★★★</div><p class="text-gray-600 mb-4">"Discreet shipping and sophisticated design."</p><div class="flex items-center gap-3"><div class="bg-brand/20 rounded-full w-10 h-10 flex items-center justify-center font-bold text-brand">ER</div><div><p class="font-semibold">Emma Roberts</p><p class="text-xs text-gray-500">Verified Buyer</p></div></div></div>
+            </div>
+        </section>
+
+        <section class="bg-gray-50 border-y border-gray-200 py-12 mb-0">
+            <div class="max-w-[1440px] mx-auto px-4 md:px-8 text-center">
+                <h3 class="text-2xl md:text-3xl font-bold mb-3">Stay in the Loop</h3>
+                <p class="text-gray-600 mb-6 max-w-md mx-auto">Be the first to know about new collections and exclusive offers.</p>
+                <div class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+                    <input type="email" placeholder="Your email address" class="input rounded-full bg-white border-gray-200 flex-1" />
+                    <button class="btn bg-brand text-white hover:bg-brand/90 rounded-full px-8 border-none">Subscribe</button>
+                </div>
+                <p class="text-xs text-gray-400 mt-4">We respect your privacy. Unsubscribe at any time.</p>
+            </div>
+        </section>
+    </main>
+
+  <!-- PROFESSIONAL FOOTER -->
+  <footer class="bg-dark text-white pt-12 pb-6">
+    <div class="max-w-[1440px] mx-auto px-4 md:px-8">
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-8 mb-8">
+            <div class="col-span-2 md:col-span-1">
+                <h3 class="text-2xl font-bold text-brand mb-4">GoShop 2.0</h3>
+                <p class="text-gray-400 text-sm mb-4">Premium lifestyle and wellness products for the modern individual.</p>
+                <div class="flex gap-3">
+                    <a href="#" class="bg-gray-800 p-2 rounded-full hover:bg-brand transition-colors">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-2.717 0-4.92 2.203-4.92 4.917 0 .39.045.765.127 1.124C7.691 8.094 4.066 6.13 1.64 3.161c-.427.722-.666 1.561-.666 2.475 0 1.71.87 3.213 2.188 4.096-.807-.026-1.566-.248-2.228-.616v.061c0 2.385 1.693 4.374 3.946 4.827-.413.111-.849.171-1.296.171-.314 0-.615-.03-.916-.086.631 1.953 2.445 3.377 4.604 3.417-1.68 1.319-3.809 2.105-6.102 2.105-.39 0-.779-.023-1.17-.067 2.189 1.394 4.768 2.209 7.557 2.209 9.054 0 14-7.496 14-13.986 0-.21 0-.42-.015-.63.961-.689 1.8-1.56 2.46-2.548l-.047-.02z"/></svg>
+                    </a>
+                    <a href="#" class="bg-gray-800 p-2 rounded-full hover:bg-brand transition-colors">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073z"/></svg>
+                    </a>
+                    <a href="#" class="bg-gray-800 p-2 rounded-full hover:bg-brand transition-colors">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M22.23 0H1.77C.79 0 0 .79 0 1.77v20.46C0 23.21.79 24 1.77 24h20.46c.98 0 1.77-.79 1.77-1.77V1.77C24 .79 23.21 0 22.23 0zM7.08 20.45H3.56V9h3.52v11.45zM5.32 7.61c-1.13 0-2.05-.92-2.05-2.05 0-1.13.92-2.05 2.05-2.05 1.13 0 2.05.92 2.05 2.05 0 1.13-.92 2.05-2.05 2.05zM20.45 20.45h-3.52v-5.6c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.7H9.43V9h3.38v1.56h.05c.47-.89 1.62-1.83 3.33-1.83 3.56 0 4.22 2.34 4.22 5.39v6.33z"/></svg>
+                    </a>
+                </div>
+            </div>
+            <div>
+                <h4 class="font-bold mb-4">Shop</h4>
+                <ul class="space-y-2 text-gray-400 text-sm">
+                    <li><a href="#" class="hover:text-brand">Jewelry</a></li>
+                    <li><a href="#" class="hover:text-brand">Gym Bottles</a></li>
+                    <li><a href="#" class="hover:text-brand">Wellness</a></li>
+                    <li><a href="#" class="hover:text-brand">Accessories</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold mb-4">Support</h4>
+                <ul class="space-y-2 text-gray-400 text-sm">
+                    <li><a href="#" class="hover:text-brand">Help Center</a></li>
+                    <li><a href="#" class="hover:text-brand">Shipping Info</a></li>
+                    <li><a href="#" class="hover:text-brand">Returns</a></li>
+                    <li><a href="#" class="hover:text-brand">Size Guide</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold mb-4">Company</h4>
+                <ul class="space-y-2 text-gray-400 text-sm">
+                    <li><a href="#" class="hover:text-brand">About Us</a></li>
+                    <li><a href="#" class="hover:text-brand">Sustainability</a></li>
+                    <li><a href="#" class="hover:text-brand">Careers</a></li>
+                    <li><a href="#" class="hover:text-brand">Press</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold mb-4">Legal</h4>
+                <ul class="space-y-2 text-gray-400 text-sm">
+                    <li><a href="#" class="hover:text-brand">Privacy Policy</a></li>
+                    <li><a href="#" class="hover:text-brand">Terms of Service</a></li>
+                    <li><a href="#" class="hover:text-brand">Cookie Policy</a></li>
+                    <li><a href="#" class="hover:text-brand">Accessibility</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="border-t border-gray-800 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p class="text-gray-400 text-sm">© 2024 GoShop 2.0. All rights reserved.</p>
+            <div class="flex gap-4">
+                <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons@develop/icons/visa.svg" class="h-6 opacity-50" />
+                <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons@develop/icons/mastercard.svg" class="h-6 opacity-50" />
+                <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons@develop/icons/amex.svg" class="h-6 opacity-50" />
+                <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons@develop/icons/paypal.svg" class="h-6 opacity-50" />
+            </div>
+        </div>
+    </div>
+</footer>
+
+    <!-- CART DRAWER (identical) -->
+    <div id="cartDrawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-2xl z-[200] transform translate-x-full cart-drawer transition-transform duration-300 flex flex-col">
+        <div class="p-5 border-b flex justify-between items-center"><h3 class="text-xl font-bold">Your cart (<span id="drawerItemCount">0</span>)</h3><button id="closeCartDrawer" class="btn btn-sm btn-circle btn-ghost">✕</button></div>
+        <div id="cartItemsContainer" class="flex-1 overflow-y-auto p-4 space-y-4"></div>
+        <div class="p-5 border-t bg-gray-50"><div class="flex justify-between font-bold text-lg mb-4"><span>Total</span><span id="cartTotalPrice">$0</span></div><button onclick="window.location.href='checkout1.html'" class="btn bg-brand text-white w-full rounded-full border-none hover:bg-brand/90">Proceed to checkout</button><p class="text-xs text-center text-gray-500 mt-3">Discreet packaging · Secure payment</p></div>
+    </div>
+    <div id="cartOverlay" class="fixed inset-0 bg-black/30 z-[150] hidden transition-opacity"></div>
+
+    <!-- MOBILE BOTTOM NAV -->
+    <nav class="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-sm h-16 glass-nav rounded-full shadow-2xl border border-white/40 flex items-center justify-around px-4 z-[100]">
+        <button class="p-3 text-brand"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor"><path d="M11.47 3.84a.75.75 0 011.06 0l8.69 8.69a.75.75 0 101.06-1.06l-8.689-8.69a2.25 2.25 0 00-3.182 0l-8.69 8.69a.75.75 0 001.061 1.06l8.69-8.69z"/></svg></button>
+        <button class="p-3 text-gray-400"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg></button>
+        <button class="p-3 text-gray-400"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg></button>
+        <button id="mobileCartToggle" class="p-3 text-gray-400"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg></button>
+    </nav>
+
+    <script>
+        (function(){
+            "use strict";
+
+            const products = [
+            { id: 5, name: "Serenity Massager", price: 89, category: "wellness", rating: 5, image: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?q=80&w=800&auto=format&fit=crop", description: "Ultra‑quiet · Medical‑grade silicone · Discreet elegant design." },
+                { id: 6, name: "Aura Personal Care", price: 119, category: "wellness", rating: 4.5, image: "https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?q=80&w=800&auto=format&fit=crop", description: "Waterproof · USB rechargeable · Sophisticated wellness companion." },
+                { id: 7, name: "Leather Cardholder", price: 55, category: "accessories", rating: 4, image: "https://images.unsplash.com/photo-1627123424574-724758594e93?q=80&w=800&auto=format&fit=crop", description: "Minimalist full‑grain leather." },
+                { id: 8, name: "Aviator Sunglasses", price: 78, category: "accessories", rating: 4.5, image: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?q=80&w=800&auto=format&fit=crop", description: "Polarized · Timeless design." },
+                { id: 1, name: "Aurora Pendant", price: 189, category: "jewelry", rating: 5, image: "https://images.unsplash.com/photo-1599643478518-a784e5b0711e?q=80&w=800&auto=format&fit=crop", description: "14k gold‑plated necklace with ethically sourced zirconia." },
+                { id: 2, name: "Infinity Bracelet", price: 129, category: "jewelry", rating: 4.5, image: "https://images.unsplash.com/photo-1611591437281-390bfb122a4f?q=80&w=800&auto=format&fit=crop", description: "Sterling silver, adjustable, elegant everyday piece." },
+                { id: 3, name: "HydroFlask 24oz", price: 44, category: "bottles", rating: 5, image: "https://images.unsplash.com/photo-1602143407151-7111542de596?q=80&w=800&auto=format&fit=crop", description: "Double-wall vacuum insulation · 24h cold / 12h hot · BPA‑free stainless steel." },
+                { id: 4, name: "Metallic Tumbler", price: 39, category: "bottles", rating: 4.5, image: "https://images.unsplash.com/photo-1625591334160-541f82c6f2d0?q=80&w=800&auto=format&fit=crop", description: "Sweat‑proof copper lining · Keeps drinks perfect · Metallic build." },
+                { id: 9, name: "Pearl Drop Earrings", price: 210, category: "jewelry", rating: 5, image: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?q=80&w=800&auto=format&fit=crop", description: "Freshwater pearl with 18k gold accents." }
+            ];
+
+            let cart = JSON.parse(localStorage.getItem('goshopt_cart')) || [];
+            const productGrid = document.getElementById('productGrid');
+            const cartCounterSpan = document.getElementById('cartCounter');
+            const drawerItemCountSpan = document.getElementById('drawerItemCount');
+            const cartTotalSpan = document.getElementById('cartTotalPrice');
+            const cartItemsContainer = document.getElementById('cartItemsContainer');
+            const cartDrawer = document.getElementById('cartDrawer');
+            const cartOverlay = document.getElementById('cartOverlay');
+            const closeDrawerBtn = document.getElementById('closeCartDrawer');
+            const cartToggleBtn = document.getElementById('cartToggleBtn');
+            const mobileCartToggle = document.getElementById('mobileCartToggle');
+
+            function updateCartUI() {
+                const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+                cartCounterSpan.textContent = totalItems;
+                drawerItemCountSpan.textContent = totalItems;
+                const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                cartTotalSpan.textContent = `$${totalPrice}`;
+                if (cart.length === 0) {
+                    cartItemsContainer.innerHTML = `<p class="text-gray-400 text-center py-8">Your cart is empty</p>`;
+                } else {
+                    cartItemsContainer.innerHTML = cart.map(item => `
+                        <div class="flex gap-3 items-center border-b pb-3"><img src="${item.image}" class="w-16 h-16 rounded-xl object-cover" /><div class="flex-1"><p class="font-semibold">${item.name}</p><p class="text-sm text-gray-500">$${item.price} x ${item.quantity}</p></div><div class="flex items-center gap-2"><button data-remove="${item.id}" class="text-red-400 text-xl remove-item">−</button><span class="w-5 text-center">${item.quantity}</span><button data-add="${item.id}" class="text-brand text-xl add-item">+</button></div></div>
+                    `).join('');
+                    document.querySelectorAll('.remove-item').forEach(btn => { btn.addEventListener('click', () => { const id = Number(btn.dataset.remove); const existing = cart.find(p => p.id === id); if (existing) { if (existing.quantity > 1) existing.quantity--; else cart = cart.filter(p => p.id !== id); } saveCartAndUpdate(); }); });
+                    document.querySelectorAll('.add-item').forEach(btn => { btn.addEventListener('click', () => { const id = Number(btn.dataset.add); const product = products.find(p => p.id === id); if (product) addToCart(product); }); });
+                }
+                localStorage.setItem('goshopt_cart', JSON.stringify(cart));
+            }
+
+            function saveCartAndUpdate() { localStorage.setItem('goshopt_cart', JSON.stringify(cart)); updateCartUI(); renderProductCards(currentFilter); }
+            function addToCart(product) { const existing = cart.find(p => p.id === product.id); if (existing) existing.quantity++; else cart.push({ ...product, quantity: 1 }); saveCartAndUpdate(); }
+            function openCartDrawer() { cartDrawer.classList.remove('translate-x-full'); cartOverlay.classList.remove('hidden'); }
+            function closeCartDrawer() { cartDrawer.classList.add('translate-x-full'); cartOverlay.classList.add('hidden'); }
+            cartToggleBtn.addEventListener('click', openCartDrawer); mobileCartToggle.addEventListener('click', openCartDrawer); closeDrawerBtn.addEventListener('click', closeCartDrawer); cartOverlay.addEventListener('click', closeCartDrawer);
+
+            let currentFilter = 'all';
+
+            /*
+             * HYBRID RENDER FUNCTION
+             * - Mobile (≤640px): Compact tile layout from index.html
+             * - Desktop (>640px): Spacious card layout from product.html
+             */
+            function renderProductCards(filterCategory = 'all') {
+                const filtered = filterCategory === 'all' ? products : products.filter(p => p.category === filterCategory);
+                const isMobile = window.innerWidth <= 640;
+
+                productGrid.innerHTML = filtered.map(prod => {
+                    const inCart = cart.find(c => c.id === prod.id);
+
+                    // Desktop-only badges
+                    const categoryBadge = !isMobile ? 
+                        `<div class="category-label">${prod.category === 'jewelry' ? 'Premium' : prod.category === 'bottles' ? 'Best Seller' : prod.category === 'wellness' ? 'Discreet' : 'Featured'}</div>` : 
+                        `<div class="absolute top-2 left-2 bg-white/80 backdrop-blur-sm text-[10px] font-bold px-2 py-0.5 rounded-full md:hidden">${prod.category}</div>`;
+
+                    const techBadge = (!isMobile && prod.category === 'bottles') ? 
+                        '<div class="tech-badge">VACUUM INSULATED · BPA-FREE</div>' : '';
+
+                    // Mobile: Simple compact layout
+                    // Desktop: Spacious layout with badges and larger typography
+                    return `
+                    <div onclick="window.location.href='product.html'" class="mobile-tile-card bg-white flex flex-col h-full group cursor-pointer">
+                        <div class="product-image-container relative w-full bg-gray-100">
+                            <img src="${prod.image}" alt="${prod.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                            ${categoryBadge}
+                            ${techBadge}
+                        </div>
+                        <div class="px-1 flex-grow flex flex-col mt-2 md:mt-3">
+                            <div class="flex items-start justify-between gap-2 mb-1">
+                                <h3 class="text-gray-900 leading-tight line-clamp-1 flex-1">${prod.name}</h3>
+                                <span class="price-tag bg-gray-100 text-gray-900 rounded-full font-bold whitespace-nowrap">$${prod.price}</span>
+                            </div>
+                            <p class="text-gray-500 text-xs md:text-sm mt-1 md:mt-2 leading-relaxed line-clamp-2">${prod.description}</p>
+                        </div>
+                        <div class="mt-3 md:mt-4 flex items-center gap-2 md:gap-3">
+                            <button data-add-buy='${JSON.stringify({id:prod.id, name:prod.name, price:prod.price, image:prod.image})}' onclick="window.location.href='checkout1.html'" class="add-buy-btn buy-now-btn buy-btn flex-1 py-2.5 md:py-3 rounded-full text-sm md:text-base font-semibold cursor-pointer">
+                                ${inCart ? `Added (${inCart.quantity})` : 'Buy Now'}
+                            </button>
+                            <button data-add-cart='${JSON.stringify({id:prod.id, name:prod.name, price:prod.price, image:prod.image})}' class="add-cart-icon cart-icon-btn flex-shrink-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+                            </button>
+                        </div>
+                        ${inCart ? `<span class="text-[10px] md:text-xs text-brand font-medium mt-1 md:mt-2">In cart (${inCart.quantity})</span>` : ''}
+                    </div>`;
+                }).join('');
+
+                document.querySelectorAll('.add-buy-btn, .add-cart-icon').forEach(btn => { 
+                    btn.addEventListener('click', (e) => { 
+                        e.stopPropagation();
+                        const data = btn.dataset.addBuy || btn.dataset.addCart; 
+                        const prod = JSON.parse(data); 
+                        const full = products.find(p => p.id === prod.id); 
+                        if(full) addToCart(full); 
+                    }); 
+                });
+            }
+
+            document.querySelectorAll('.filter-btn').forEach(btn => { 
+                btn.addEventListener('click', () => { 
+                    const filter = btn.dataset.filter; 
+                    currentFilter = filter; 
+                    document.querySelectorAll('.filter-btn').forEach(b => { 
+                        b.classList.remove('bg-gray-900','text-white'); 
+                        b.classList.add('bg-white','text-gray-700'); 
+                    }); 
+                    btn.classList.add('bg-gray-900','text-white'); 
+                    renderProductCards(filter); 
+                }); 
+            });
+
+            // Handle resize to switch layouts
+            let resizeTimeout;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    renderProductCards(currentFilter);
+                }, 150);
+            });
+
+            // Carousel
+            const carouselData = [ 
+                { tag: "Luxury Jewelry", title: "Radiant<br>Elegance.", img: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?q=80&w=2000&auto=format&fit=crop", btn: "Shop Jewelry" }, 
+                { tag: "Gym & Hydration", title: "Insulated<br>Performance.", img: "https://images.unsplash.com/photo-1523362628745-0c100150b504?q=80&w=2000&auto=format&fit=crop", btn: "Discover Bottles" }, 
+                { tag: "Wellness Collection", title: "Discreet<br>Sophistication.", img: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=2000&auto=format&fit=crop", btn: "Explore" } 
+            ];
+            const carouselContainer = document.getElementById('autoCarousel'); 
+            const dotsContainer = document.getElementById('carouselProgressDots'); 
+            let currentSlide = 0; 
+            let autoplayInterval;
+            function renderCarousel() { 
+                carouselContainer.innerHTML = carouselData.map((slide, idx) => `
+                    <div class="carousel-slide ${idx === 0 ? 'active' : ''}">
+                        <img src="${slide.img}" class="absolute inset-0 h-full w-full object-cover" />
+                        <div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent p-6 md:p-12 flex flex-col justify-center">
+                            <span class="text-xs md:text-sm font-bold uppercase tracking-widest text-brand mb-2">${slide.tag}</span>
+                            <h2 class="text-2xl md:text-4xl font-bold text-white mb-4 leading-tight max-w-lg">${slide.title}</h2>
+                            <button class="btn bg-white text-black hover:bg-gray-100 btn-sm md:btn-md w-fit rounded-full px-6 md:px-8 border-none">${slide.btn}</button>
+                        </div>
+                    </div>
+                `).join(''); 
+                dotsContainer.innerHTML = carouselData.map((_, i) => `<span class="w-2 h-2 rounded-full bg-white/70 transition-all duration-300" data-dot="${i}"></span>`).join(''); 
+                updateDots(); 
+            }
+            function updateDots() { 
+                const dots = dotsContainer.querySelectorAll('[data-dot]'); 
+                dots.forEach((dot, i) => { 
+                    if (i === currentSlide) { 
+                        dot.classList.remove('bg-white/70','w-2'); 
+                        dot.classList.add('bg-brand','w-6'); 
+                    } else { 
+                        dot.classList.add('bg-white/70','w-2'); 
+                        dot.classList.remove('bg-brand','w-6'); 
+                    } 
+                }); 
+            }
+            function goToSlide(index) { 
+                carouselContainer.querySelectorAll('.carousel-slide').forEach((s,i) => s.classList.toggle('active', i===index)); 
+                currentSlide = index; 
+                updateDots(); 
+            }
+            function nextSlide() { 
+                currentSlide = (currentSlide + 1) % carouselData.length; 
+                goToSlide(currentSlide); 
+            }
+            function startAutoplay() { 
+                if(autoplayInterval) clearInterval(autoplayInterval); 
+                autoplayInterval = setInterval(nextSlide, 4000); 
+            }
+            renderCarousel(); 
+            startAutoplay();
+
+            function initialLoad() { 
+                renderProductCards('all'); 
+                updateCartUI(); 
+                document.querySelector('[data-filter="all"]').classList.add('bg-gray-900','text-white'); 
+            }
+            initialLoad();
+        })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Checkout · Benin — GoShop 2.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.7.2/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: '#0BB2A4',
+                        soft: '#F8F9FA',
+                        dark: '#1a1a2e',
+                    },
+                    fontFamily: {
+                        sans: ['Satoshi', 'Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://api.fontshare.com/v2/css?f[]=satoshi@700,500,400&display=swap');
+
+        /* Ensure script tags are hidden */
+        script { display: none !important; }
+
+        .checkout-step.active { color: #0BB2A4; border-color: #0BB2A4; }
+
+        /* slide‑to‑confirm styles - LEFT TO RIGHT with background fill */
+        .slide-container {
+            background: #e2e8f0;
+            border-radius: 60px;
+            padding: 4px;
+            box-shadow: 0 8px 18px rgba(11,178,164,0.2);
+            position: relative;
+            overflow: hidden;
+            transition: background-color 0.1s;
+        }
+        .slide-container::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 0%;
+            background: #0BB2A4;
+            border-radius: 60px;
+            transition: width 0.1s;
+            z-index: 1;
+        }
+        .slide-container.filling::before {
+            width: var(--fill-percent, 0%);
+        }
+        .slide-container.completed {
+            background: #0BB2A4;
+        }
+        .slide-container.completed::before {
+            width: 100%;
+        }
+        .slide-track {
+            background: transparent;
+            border-radius: 60px;
+            height: 56px;
+            position: relative;
+            cursor: pointer;
+            user-select: none;
+            z-index: 2;
+        }
+        .slide-thumb {
+            background: #0BB2A4;
+            border-radius: 40px;
+            padding: 12px 20px;
+            color: white;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: transform 0.1s ease, color 0.2s;
+            white-space: nowrap;
+            position: absolute;
+            left: 6px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: grab;
+            z-index: 10;
+        }
+        .slide-thumb:active {
+            cursor: grabbing;
+            transform: translateY(-50%) scale(0.95);
+        }
+        .slide-container.completed .slide-thumb {
+            background: white;
+            color: #0a7a6e;
+        }
+        .slide-label {
+            color: #64748b;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.2s;
+            pointer-events: none;
+            z-index: 5;
+        }
+        .slide-container.completed .slide-label {
+            color: white;
+            opacity: 1;
+        }
+        .arrow-icon {
+            transition: transform 0.2s;
+            display: inline-block;
+            font-size: 1.2rem;
+        }
+        .slide-thumb:hover .arrow-icon {
+            transform: translateX(3px);
+        }
+        .slide-container.dragging .arrow-icon {
+            transform: translateX(4px);
+        }
+        .slide-container.completed .slide-thumb {
+            left: auto !important;
+            right: 6px;
+            transform: translateY(-50%) !important;
+        }
+
+        /* Modal animations */
+        .modal-overlay {
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(4px);
+        }
+
+        /* Print styles */
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white; }
+        }
+    </style>
+</head>
+<body class="bg-[#F8F9FA] min-h-screen font-sans text-slate-800">
+
+    <!-- HEADER -->
+    <header class="sticky top-0 z-40 w-full bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm">
+        <div class="max-w-[1440px] mx-auto flex items-center justify-between px-4 md:px-8 py-4">
+            <a href="#" class="text-2xl md:text-3xl font-bold tracking-tight text-brand flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
+                GoShop <span class="font-light">2.0</span>
+            </a>
+            <div class="flex items-center gap-2">
+                <span class="text-sm text-gray-600">🇧🇯 Bénin · Livraison discrète</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- PROGRESS -->
+    <div class="max-w-5xl mx-auto px-4 md:px-8 pt-8 pb-6">
+        <div class="flex items-center justify-center gap-3 md:gap-6">
+            <div class="flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-brand text-white flex items-center justify-center font-bold">1</div><span class="font-semibold text-brand">Panier</span></div>
+            <div class="w-10 h-0.5 bg-brand"></div>
+            <div class="flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-brand text-white flex items-center justify-center font-bold">2</div><span class="font-semibold text-brand">Livraison</span></div>
+            <div class="w-10 h-0.5 bg-gray-300"></div>
+            <div class="flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center font-bold">3</div><span class="font-semibold text-gray-400">Confirmation</span></div>
+        </div>
+    </div>
+
+    <!-- CHECKOUT CONTENT -->
+    <div class="max-w-5xl mx-auto px-4 md:px-8 pb-16">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+            <!-- LEFT: FORMS -->
+            <div class="lg:col-span-2 space-y-6">
+
+                <div class="bg-white rounded-3xl p-6 shadow-sm">
+                    <div class="flex items-center justify-between mb-3">
+                        <h2 class="text-xl font-bold">Coordonnées</h2>
+                        <span class="text-xs bg-gray-100 px-3 py-1.5 rounded-full">Option anonyme</span>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-3 mb-2">
+                            <input type="checkbox" id="anonymousCheck" class="checkbox checkbox-sm" />
+                            <label for="anonymousCheck" class="text-sm">Commander sans compte</label>
+                        </div>
+                        <input type="email" placeholder="Email" class="input w-full rounded-full bg-gray-50" value="client@benin.bj" />
+                        <input type="tel" placeholder="Téléphone (WhatsApp)" class="input w-full rounded-full bg-gray-50" value="+229 97 12 34 56" />
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-3xl p-6 shadow-sm">
+                    <h2 class="text-xl font-bold mb-4">Adresse · Bénin</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input type="text" placeholder="Nom complet" class="input rounded-full bg-gray-50" value="Jean Akakpo" />
+                        <input type="text" placeholder="Quartier / Ville" class="input rounded-full bg-gray-50" value="Cotonou, Haie Vive" />
+                        <input type="text" placeholder="Rue, repère" class="input rounded-full bg-gray-50 md:col-span-2" value="Rue 12, derrière banque Atlantique" />
+                        <select class="select rounded-full bg-gray-50"><option>Littoral</option></select>
+                        <input type="text" placeholder="Commune" class="input rounded-full bg-gray-50" value="Cotonou" />
+                        <select class="select rounded-full bg-gray-50 md:col-span-2"><option>Bénin</option></select>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-3xl p-6 shadow-sm">
+                    <h2 class="text-xl font-bold mb-4">Livraison & Paiement</h2>
+                    <div class="space-y-3 mb-6">
+                        <label class="flex items-center justify-between p-4 border-2 border-brand rounded-2xl cursor-pointer bg-brand/5">
+                            <div class="flex items-center gap-3"><input type="radio" name="shipping" class="radio radio-sm checked:bg-brand" checked /><div><p class="font-semibold">Express (Cotonou)</p><p class="text-xs">1-2j · 2 000 F</p></div></div><span>2 000 F</span>
+                        </label>
+                        <label class="flex items-center justify-between p-4 border-2 border-gray-200 rounded-2xl cursor-pointer">
+                            <div class="flex items-center gap-3"><input type="radio" name="shipping" class="radio radio-sm" /><div><p class="font-semibold">Standard Bénin</p><p class="text-xs">3-5j · 1 000 F</p></div></div><span>1 000 F</span>
+                        </label>
+                    </div>
+                    <h3 class="font-semibold mb-3">Paiement</h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="flex items-center gap-3 p-4 border-2 border-brand rounded-xl bg-brand/5"><input type="radio" name="paymentMethod" class="radio radio-sm" checked />💵 À la livraison</label>
+                        <label class="flex items-center gap-3 p-4 border-2 border-gray-200 rounded-xl"><input type="radio" name="paymentMethod" class="radio radio-sm" />📱 Mobile Money</label>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-4">✓ Paiement en espèces ou Moov/MTN</p>
+                </div>
+            </div>
+
+            <!-- RIGHT: SUMMARY + SLIDE BUTTON -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-3xl p-6 shadow-sm sticky top-24">
+                    <h2 class="text-xl font-bold mb-4">Récapitulatif</h2>
+                    <div class="space-y-3 mb-4 max-h-72 overflow-y-auto">
+                        <div class="flex gap-3 pb-3 border-b"><img src="https://images.unsplash.com/photo-1602143407151-7111542de596?q=80&w=100&auto=format&fit=crop" class="w-14 h-14 rounded-xl" /><div><p class="font-semibold text-sm">HydroFlask</p><p class="font-bold text-sm">26 400 F</p></div></div>
+                        <div class="flex gap-3 pb-3 border-b"><img src="https://images.unsplash.com/photo-1599643478518-a784e5b0711e?q=80&w=100&auto=format&fit=crop" class="w-14 h-14 rounded-xl" /><div><p class="font-semibold text-sm">Aurora Pendant</p><p class="font-bold text-sm">113 400 F</p></div></div>
+                    </div>
+                    <div class="space-y-2 text-sm mb-4">
+                        <div class="flex justify-between"><span>Sous‑total</span><span>139 800 F</span></div>
+                        <div class="flex justify-between"><span>Livraison</span><span id="shippingDisplay">2 000 F</span></div>
+                        <div class="flex justify-between"><span>Taxe</span><span>12 582 F</span></div>
+                    </div>
+                    <div class="border-t pt-4 mb-6">
+                        <div class="flex justify-between items-center"><span class="text-lg font-bold">Total</span><span class="text-2xl font-bold text-brand" id="totalAmount">154 382 FCFA</span></div>
+                    </div>
+
+                    <!-- SLIDE TO CONFIRM with BACKGROUND FILL -->
+                    <div class="slide-container" id="slideContainer">
+                        <div class="slide-track" id="slideTrack">
+                            <div class="slide-thumb" id="slideThumb">
+                                <span class="arrow-icon">›</span>
+                            </div>
+                            <span class="slide-label" id="slideLabel">Glisser pour confirmer</span>
+                        </div>
+                    </div>
+                    <p class="text-[11px] text-center text-gray-400 mt-3">En confirmant, vous acceptez les conditions</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAYMENT CONFIRMATION MODAL -->
+    <div id="paymentConfirmModal" class="fixed inset-0 z-[300] flex items-center justify-center hidden modal-overlay">
+        <div class="bg-white rounded-3xl max-w-md w-full mx-4 p-6 shadow-2xl">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-brand/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                </div>
+                <h3 class="text-2xl font-bold mb-2">Confirmation de paiement</h3>
+                <p class="text-gray-600 mb-6">Paiement à la livraison · Mobile Money sélectionné</p>
+                <div class="bg-gray-50 p-4 rounded-2xl mb-6 text-left">
+                    <p class="text-sm"><span class="font-semibold">Total à payer :</span> <span id="modalTotal" class="text-brand font-bold">154 382 FCFA</span></p>
+                    <p class="text-sm mt-2">Vous réglerez à réception ou via Mobile Money.</p>
+                </div>
+                <div class="flex gap-3">
+                    <button id="confirmPaymentBtn" class="btn bg-brand hover:bg-brand/90 text-white flex-1 rounded-full border-none">Confirmer la commande</button>
+                    <button id="cancelPaymentBtn" class="btn btn-ghost rounded-full flex-1">Annuler</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SUCCESS ORDER MODAL with Receipt -->
+    <div id="successModal" class="fixed inset-0 z-[400] flex items-center justify-center hidden modal-overlay">
+        <div class="bg-white rounded-3xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div class="p-6 md:p-8">
+                <div class="text-center mb-6">
+                    <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    </div>
+                    <h2 class="text-3xl font-bold text-gray-800">Commande confirmée !</h2>
+                    <p class="text-gray-500 mt-1">Merci Jean, votre commande est en cours de préparation.</p>
+                </div>
+
+                <!-- Receipt Content -->
+                <div id="receiptContent" class="border border-gray-200 rounded-2xl p-5 mb-6 bg-gray-50/50">
+                    <div class="flex justify-between items-center border-b pb-3 mb-3">
+                        <div><span class="font-bold text-lg">GoShop 2.0</span><p class="text-xs text-gray-500">Commande #BJ-2024-0892</p></div>
+                        <div class="text-right"><p class="text-sm">15 Avril 2026</p><p class="text-xs">Cotonou, Bénin</p></div>
+                    </div>
+                    <div class="mb-4">
+                        <p class="font-semibold">Livré à :</p>
+                        <p>Jean Akakpo<br>Rue 12, Haie Vive, Cotonou<br>+229 97 12 34 56</p>
+                    </div>
+                    <table class="w-full text-sm mb-4">
+                        <thead class="border-b"><tr><th class="text-left py-2">Article</th><th class="text-right">Qté</th><th class="text-right">Prix</th></tr></thead>
+                        <tbody>
+                            <tr><td class="py-1">HydroFlask 24oz</td><td class="text-right">1</td><td class="text-right">26 400 F</td></tr>
+                            <tr><td class="py-1">Aurora Pendant</td><td class="text-right">1</td><td class="text-right">113 400 F</td></tr>
+                        </tbody>
+                    </table>
+                    <div class="border-t pt-3 space-y-1 text-sm">
+                        <div class="flex justify-between"><span>Sous-total</span><span>139 800 F</span></div>
+                        <div class="flex justify-between"><span>Livraison (Express)</span><span id="receiptShipping">2 000 F</span></div>
+                        <div class="flex justify-between"><span>Taxe</span><span>12 582 F</span></div>
+                        <div class="flex justify-between font-bold text-base mt-2 pt-2 border-t"><span>Total</span><span id="receiptTotal">154 382 FCFA</span></div>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-4">Mode de paiement: Paiement à la livraison / Mobile Money</p>
+                    <p class="text-xs mt-2">Livraison estimée: 17-19 Avril 2026 · Suivi par SMS</p>
+                </div>
+
+                <!-- Action buttons -->
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <button id="printReceiptBtn" class="btn bg-gray-900 hover:bg-gray-800 text-white rounded-full px-6 flex-1 gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                        Imprimer le reçu
+                    </button>
+                    <button id="continueShoppingBtn" class="btn bg-brand hover:bg-brand/90 text-white rounded-full flex-1">Continuer les achats</button>
+                    <button id="closeSuccessBtn" class="btn btn-ghost rounded-full">Fermer</button>
+                </div>
+                <p class="text-xs text-center text-gray-400 mt-4">Un SMS de confirmation a été envoyé au +229 97 12 34 56</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="bg-dark text-white py-6 mt-4">
+        <div class="max-w-5xl mx-auto px-4 text-center text-sm text-gray-400">© 2024 GoShop 2.0 — Bénin</div>
+    </footer>
+
+    <script style="display: none;">
+        (function(){
+            "use strict";
+
+            // ----- Update shipping & totals -----
+            const shippingRadios = document.querySelectorAll('input[name="shipping"]');
+            const shippingDisplay = document.getElementById('shippingDisplay');
+            const totalSpan = document.getElementById('totalAmount');
+            const modalTotal = document.getElementById('modalTotal');
+            const receiptShipping = document.getElementById('receiptShipping');
+            const receiptTotal = document.getElementById('receiptTotal');
+
+            function updateTotals() {
+                let shippingFCFA = 2000, label = '2 000 F';
+                const selected = document.querySelector('input[name="shipping"]:checked');
+                if(selected) {
+                    const priceSpan = selected.closest('label').querySelector('span:last-child');
+                    if(priceSpan) {
+                        if(priceSpan.textContent.includes('1 000')) { shippingFCFA = 1000; label = '1 000 F'; }
+                        else if(priceSpan.textContent.includes('GRATUIT')) { shippingFCFA = 0; label = 'GRATUIT'; }
+                    }
+                }
+                shippingDisplay.textContent = label;
+                if(receiptShipping) receiptShipping.textContent = label;
+                const subtotal = 139800, tax = 12582;
+                const total = subtotal + shippingFCFA + tax;
+                const formatted = total.toLocaleString('fr-FR') + ' FCFA';
+                totalSpan.textContent = formatted;
+                if(modalTotal) modalTotal.textContent = formatted;
+                if(receiptTotal) receiptTotal.textContent = formatted;
+            }
+
+            shippingRadios.forEach(r => r.addEventListener('change', (e) => {
+                document.querySelectorAll('input[name="shipping"]').forEach(rr => rr.closest('label').classList.remove('border-brand','bg-brand/5'));
+                e.target.closest('label').classList.add('border-brand','bg-brand/5');
+                updateTotals();
+            }));
+
+            document.querySelectorAll('input[name="paymentMethod"]').forEach(r => r.addEventListener('change', (e) => {
+                document.querySelectorAll('input[name="paymentMethod"]').forEach(rr => rr.closest('label').classList.remove('border-brand','bg-brand/5'));
+                e.target.closest('label').classList.add('border-brand','bg-brand/5');
+            }));
+
+            updateTotals();
+
+            // ---------- SLIDE TO CONFIRM with BACKGROUND FILL ----------
+            const container = document.getElementById('slideContainer');
+            const thumb = document.getElementById('slideThumb');
+            const label = document.getElementById('slideLabel');
+            const paymentModal = document.getElementById('paymentConfirmModal');
+            const successModal = document.getElementById('successModal');
+
+            let isDragging = false, startX = 0, thumbStartX = 0, confirmed = false;
+
+            function getMaxDrag() {
+                const trackWidth = document.getElementById('slideTrack').offsetWidth;
+                const thumbWidth = thumb.offsetWidth;
+                return trackWidth - thumbWidth - 12;
+            }
+
+            function updateBackgroundFill(percent) {
+                container.style.setProperty('--fill-percent', percent + '%');
+                container.classList.add('filling');
+                label.style.color = percent > 50 ? 'white' : '#64748b';
+            }
+
+            function resetSlide() {
+                confirmed = false;
+                container.classList.remove('completed', 'filling');
+                container.style.setProperty('--fill-percent', '0%');
+                thumb.style.transition = 'left 0.3s ease';
+                thumb.style.left = '6px';
+                thumb.style.transform = 'translateY(-50%)';
+                label.textContent = 'Glisser pour confirmer';
+                label.style.color = '#64748b';
+            }
+
+            function handleSlideComplete() {
+                if(confirmed) return;
+                confirmed = true;
+                container.classList.add('completed');
+                container.classList.remove('filling');
+                container.style.setProperty('--fill-percent', '100%');
+
+                const maxDrag = getMaxDrag();
+                thumb.style.transition = 'left 0.2s ease';
+                thumb.style.left = (maxDrag + 6) + 'px';
+
+                label.textContent = 'Vérification...';
+                label.style.color = 'white';
+
+                setTimeout(() => {
+                    paymentModal.classList.remove('hidden');
+                }, 200);
+            }
+
+            function handleMove(clientX) {
+                if(!isDragging || confirmed) return;
+                const delta = clientX - startX;
+                const maxDrag = getMaxDrag();
+                let newLeft = thumbStartX + delta;
+                newLeft = Math.max(6, Math.min(newLeft, maxDrag + 6));
+                thumb.style.left = newLeft + 'px';
+
+                const dragDistance = newLeft - 6;
+                const percent = Math.min((dragDistance / maxDrag) * 100, 100);
+                updateBackgroundFill(percent);
+
+                if(newLeft >= (maxDrag * 0.85) + 6) {
+                    handleSlideComplete();
+                    isDragging = false;
+                }
+            }
+
+            // Mouse events
+            thumb.addEventListener('mousedown', (e) => {
+                if(confirmed) return;
+                e.preventDefault();
+                isDragging = true;
+                startX = e.clientX;
+                thumbStartX = parseInt(thumb.style.left || 6);
+                thumb.style.transition = 'none';
+                container.classList.add('dragging');
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if(!isDragging) return;
+                e.preventDefault();
+                handleMove(e.clientX);
+            });
+
+            window.addEventListener('mouseup', () => {
+                if(isDragging) {
+                    isDragging = false;
+                    container.classList.remove('dragging');
+                    if(!confirmed) {
+                        thumb.style.transition = 'left 0.25s ease';
+                        thumb.style.left = '6px';
+                        container.classList.remove('filling');
+                        container.style.setProperty('--fill-percent', '0%');
+                        label.style.color = '#64748b';
+                    }
+                }
+            });
+
+            // Touch events
+            thumb.addEventListener('touchstart', (e) => {
+                if(confirmed) return;
+                const touch = e.touches[0];
+                isDragging = true;
+                startX = touch.clientX;
+                thumbStartX = parseInt(thumb.style.left || 6);
+                thumb.style.transition = 'none';
+                container.classList.add('dragging');
+            }, {passive: false});
+
+            window.addEventListener('touchmove', (e) => {
+                if(!isDragging) return;
+                e.preventDefault();
+                const touch = e.touches[0];
+                handleMove(touch.clientX);
+            }, {passive: false});
+
+            window.addEventListener('touchend', () => {
+                if(isDragging) {
+                    isDragging = false;
+                    container.classList.remove('dragging');
+                    if(!confirmed) {
+                        thumb.style.transition = 'left 0.25s ease';
+                        thumb.style.left = '6px';
+                        container.classList.remove('filling');
+                        container.style.setProperty('--fill-percent', '0%');
+                        label.style.color = '#64748b';
+                    }
+                }
+            });
+
+            // ---------- MODAL HANDLERS ----------
+
+            document.getElementById('confirmPaymentBtn').addEventListener('click', () => {
+                paymentModal.classList.add('hidden');
+                successModal.classList.remove('hidden');
+                updateTotals();
+            });
+
+            document.getElementById('cancelPaymentBtn').addEventListener('click', () => {
+                paymentModal.classList.add('hidden');
+                resetSlide();
+            });
+
+            document.getElementById('closeSuccessBtn').addEventListener('click', () => {
+                successModal.classList.add('hidden');
+                resetSlide();
+            });
+
+            document.getElementById('continueShoppingBtn').addEventListener('click', () => {
+                alert('Redirection vers la boutique (démo)');
+                successModal.classList.add('hidden');
+                resetSlide();
+            });
+
+            document.getElementById('printReceiptBtn').addEventListener('click', () => {
+                const receipt = document.getElementById('receiptContent').cloneNode(true);
+                const printWindow = window.open('', '_blank', 'width=700,height=900');
+                printWindow.document.write(`
+                    <html><head><title>Reçu GoShop</title>
+                    <style>
+                        body { font-family: system-ui, -apple-system, sans-serif; padding: 30px; background: white; }
+                        .receipt-box { border: 2px solid #e2e8f0; padding: 30px; max-width: 450px; margin: auto; border-radius: 16px; }
+                        .text-right { text-align: right; } .font-bold { font-weight: bold; }
+                        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+                        th, td { padding: 8px; text-align: left; }
+                        th { border-bottom: 2px solid #e2e8f0; }
+                        .border-t { border-top: 2px solid #e2e8f0; margin-top: 10px; padding-top: 10px; }
+                    </style></head>
+                    <body><div class="receipt-box">${receipt.innerHTML}</div>
+                    <p style="text-align:center; margin-top:30px; color: #0BB2A4; font-weight: bold;">Merci pour votre confiance · GoShop Bénin</p>
+                    </body></html>
+                `);
+                printWindow.document.close();
+                printWindow.focus();
+                setTimeout(() => { printWindow.print(); printWindow.close(); }, 250);
+            });
+
+            // Click outside modals to close
+            document.querySelectorAll('.modal-overlay').forEach(overlay => {
+                overlay.addEventListener('click', (e) => {
+                    if(e.target === overlay) {
+                        overlay.classList.add('hidden');
+                        if(overlay.id === 'paymentConfirmModal') resetSlide();
+                    }
+                });
+            });
+
+            // Handle resize
+            window.addEventListener('resize', () => {
+                if(!confirmed) {
+                    thumb.style.left = '6px';
+                    container.classList.remove('filling');
+                    container.style.setProperty('--fill-percent', '0%');
+                }
+            });
+        })();
+    </script>
+</body>
+</html>
