@@ -1,0 +1,1218 @@
+<!doctype html>
+<html lang="fr" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Order Marketplace</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&amp;family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&amp;display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            crimson: '#dc143c',
+            darkred: '#8b0000',
+            obsidian: '#0a0a0f',
+            deepblue: '#0d1b3e',
+            midnight: '#060612',
+            ivory: '#f5f0e8'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+    @keyframes glow { 0%,100%{box-shadow:0 0 20px rgba(220,20,60,0.3)} 50%{box-shadow:0 0 40px rgba(220,20,60,0.6)} }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes rotateSymbol { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+    @keyframes pulse-border { 0%,100%{border-color:rgba(220,20,60,0.3)} 50%{border-color:rgba(220,20,60,0.8)} }
+    .float { animation: float 4s ease-in-out infinite; }
+    .glow { animation: glow 3s ease-in-out infinite; }
+    .fade-up { animation: fadeUp 0.8s ease forwards; opacity:0; }
+    .fade-up-1 { animation-delay: 0.1s; }
+    .fade-up-2 { animation-delay: 0.3s; }
+    .fade-up-3 { animation-delay: 0.5s; }
+    .fade-up-4 { animation-delay: 0.7s; }
+    .fade-up-5 { animation-delay: 0.9s; }
+    .fade-up-6 { animation-delay: 1.1s; }
+    .rotate-slow { animation: rotateSymbol 30s linear infinite; }
+    .pulse-b { animation: pulse-border 2s ease-in-out infinite; }
+    .product-card:hover { transform: translateY(-6px) scale(1.02); box-shadow: 0 20px 60px rgba(220,20,60,0.2); }
+    .product-card { transition: all 0.4s cubic-bezier(0.4,0,0.2,1); }
+    .eye-symbol { font-size: 2.5rem; }
+    .sacred-border { border-image: linear-gradient(135deg, #dc143c, #0d1b3e, #dc143c) 1; }
+    body { font-family: 'Cormorant Garamond', serif; }
+    h1,h2,h3,.nav-title { font-family: 'Cinzel Decorative', serif; }
+    .bg-pattern {
+      background-image: 
+        radial-gradient(circle at 20% 50%, rgba(220,20,60,0.03) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(13,27,62,0.3) 0%, transparent 50%),
+        radial-gradient(circle at 50% 80%, rgba(220,20,60,0.02) 0%, transparent 50%);
+    }
+    .triangle-bg::before {
+      content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+      width:300px;height:300px;
+      background:linear-gradient(135deg,transparent 40%,rgba(220,20,60,0.05) 50%,transparent 60%);
+      clip-path:polygon(50% 0%,0% 100%,100% 100%);
+      pointer-events:none;
+    }
+    .star-rating { color: #dc143c; letter-spacing: 2px; }
+    .trust-badge { backdrop-filter: blur(10px); }
+    .filter-btn { transition: all 0.3s ease; }
+    .filter-btn.active { background: #dc143c; color: #0a0a0f; border-color: #dc143c; }
+    .bespoke-section { background: linear-gradient(135deg, rgba(220,20,60,0.1) 0%, rgba(13,27,62,0.2) 100%); }
+    .lang-select {
+      background: transparent;
+      color: #f5f0e8;
+      border: 1px solid rgba(220,20,60,0.3);
+      padding: 0.25rem 0.75rem;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.85rem;
+      cursor: pointer;
+      outline: none;
+    }
+    .lang-select option {
+      background: #0a0a0f;
+      color: #f5f0e8;
+    }
+    .lang-select:focus {
+      border-color: #dc143c;
+    }
+    [dir="rtl"] .flex-row { flex-direction: row-reverse; }
+    [dir="rtl"] .text-left { text-align: right; }
+    [dir="rtl"] .text-right { text-align: left; }
+    [dir="rtl"] .mr-1, [dir="rtl"] .mr-2, [dir="rtl"] .mr-3, [dir="rtl"] .mr-4, [dir="rtl"] .mr-6, [dir="rtl"] .mr-8 { margin-right: 0; }
+    [dir="rtl"] .ml-1, [dir="rtl"] .ml-2, [dir="rtl"] .ml-3, [dir="rtl"] .ml-4, [dir="rtl"] .ml-6, [dir="rtl"] .ml-8 { margin-left: 0; }
+    [dir="rtl"] .md\:flex-row { flex-direction: row-reverse; }
+    [dir="rtl"] .justify-between { justify-content: space-between; }
+    [dir="rtl"] .items-center { align-items: center; }
+    [dir="rtl"] .gap-3 { gap: 0.75rem; }
+    [dir="rtl"] .gap-4 { gap: 1rem; }
+    [dir="rtl"] .gap-6 { gap: 1.5rem; }
+    [dir="rtl"] .gap-8 { gap: 2rem; }
+    [dir="rtl"] .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    [dir="rtl"] .md\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    [dir="rtl"] .md\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    [dir="rtl"] .flex-col { flex-direction: column; }
+    [dir="rtl"] .sm\:flex-row { flex-direction: row-reverse; }
+    [dir="rtl"] .md\:flex-row { flex-direction: row-reverse; }
+    [dir="rtl"] .flex-wrap { flex-wrap: wrap; }
+    [dir="rtl"] .justify-center { justify-content: center; }
+    [dir="rtl"] .mx-auto { margin-left: auto; margin-right: auto; }
+  </style>
+  <style>body { box-sizing: border-box; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ <script src="/_sdk/telemetry_sdk.js"></script><base target="_blank">
+</head>
+ <body class="h-full bg-obsidian text-ivory overflow-auto" dir="ltr">
+  <div class="w-full h-full bg-pattern relative">
+
+   <!-- Sacred Geometry Background Element -->
+   <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.03] pointer-events-none z-0">
+    <svg class="rotate-slow" width="800" height="800" viewbox="0 0 800 800">
+     <polygon points="400,50 750,650 50,650" fill="none" stroke="#dc143c" stroke-width="1" />
+     <polygon points="400,750 50,150 750,150" fill="none" stroke="#dc143c" stroke-width="1" />
+     <circle cx="400" cy="400" r="300" fill="none" stroke="#dc143c" stroke-width="0.5" />
+     <circle cx="400" cy="400" r="200" fill="none" stroke="#dc143c" stroke-width="0.5" />
+    </svg>
+   </div>
+   <!-- Navigation -->
+   <nav class="relative z-10 w-full border-b border-crimson/20">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+     <div class="flex items-center gap-3">
+      <div class="w-10 h-10 flex items-center justify-center">
+       <svg viewbox="0 0 40 40" width="40" height="40">
+        <polygon points="20,2 38,35 2,35" fill="none" stroke="#dc143c" stroke-width="1.5" />
+        <circle cx="20" cy="22" r="5" fill="none" stroke="#dc143c" stroke-width="1.5" />
+        <circle cx="20" cy="22" r="2" fill="#dc143c" />
+       </svg>
+      </div>
+      <span id="nav-title" class="nav-title text-crimson text-xl tracking-widest">THE ORDER</span>
+     </div>
+     <div class="hidden md:flex items-center gap-8 text-sm tracking-wider uppercase text-ivory/70">
+      <a href="#products" class="hover:text-crimson transition-colors" data-i18n="nav_artifacts">Artifacts</a>
+      <a href="#bespoke" class="hover:text-crimson transition-colors" data-i18n="nav_bespoke">Bespoke</a>
+      <a href="#testimonials" class="hover:text-crimson transition-colors" data-i18n="nav_testimonials">Testimonials</a>
+      <select id="lang-selector" class="lang-select rounded" onchange="changeLanguage(this.value)">
+        <option value="fr">FR — Français</option>
+        <option value="en">EN — English</option>
+        <option value="es">ES — Español</option>
+        <option value="de">DE — Deutsch</option>
+        <option value="pt">PT — Português</option>
+        <option value="ar">AR — العربية</option>
+      </select>
+      <button onclick="document.getElementById('join-modal').classList.remove('hidden')" class="px-5 py-2 border border-crimson text-crimson hover:bg-crimson hover:text-obsidian transition-all duration-300 tracking-widest text-xs" data-i18n="btn_join">JOIN US</button>
+     </div>
+     <button class="md:hidden text-crimson" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">
+      <i data-lucide="menu" class="w-6 h-6"></i>
+     </button>
+    </div>
+    <div id="mobile-menu" class="hidden md:hidden px-6 pb-4 flex flex-col gap-3 text-sm tracking-wider uppercase text-ivory/70">
+     <a href="#products" class="hover:text-crimson transition-colors py-2" data-i18n="nav_artifacts">Artifacts</a>
+     <a href="#bespoke" class="hover:text-crimson transition-colors py-2" data-i18n="nav_bespoke">Bespoke</a>
+     <a href="#testimonials" class="hover:text-crimson transition-colors py-2" data-i18n="nav_testimonials">Testimonials</a>
+     <select id="lang-selector-mobile" class="lang-select rounded w-full mt-2" onchange="changeLanguage(this.value)">
+       <option value="fr">FR — Français</option>
+       <option value="en">EN — English</option>
+       <option value="es">ES — Español</option>
+       <option value="de">DE — Deutsch</option>
+       <option value="pt">PT — Português</option>
+       <option value="ar">AR — العربية</option>
+     </select>
+    </div>
+   </nav>
+   <!-- Hero Section -->
+   <section class="relative z-10 w-full py-24 md:py-36 px-6 text-center triangle-bg">
+    <div class="max-w-4xl mx-auto">
+     <div class="eye-symbol float mb-8 fade-up fade-up-1">
+      👁
+     </div>
+     <h1 id="hero-headline" class="text-3xl md:text-5xl lg:text-6xl text-crimson mb-6 leading-tight fade-up fade-up-2" data-i18n="hero_headline">Exclusive Artifacts for the Enlightened</h1>
+     <p id="hero-subtext" class="text-lg md:text-xl text-ivory/60 max-w-2xl mx-auto mb-10 leading-relaxed fade-up fade-up-3" data-i18n="hero_subtext">Access forbidden knowledge, sacred relics, and tools of ascension. Reserved exclusively for those who seek the light beyond the veil.</p>
+     <div class="flex flex-col sm:flex-row gap-4 justify-center fade-up fade-up-4">
+      <a href="#products" class="glow px-8 py-4 bg-gradient-to-r from-crimson to-darkred text-obsidian font-semibold tracking-widest uppercase text-sm hover:scale-105 transition-transform" data-i18n="btn_explore">Explore Artifacts</a>
+      <button onclick="document.getElementById('join-modal').classList.remove('hidden')" class="px-8 py-4 border border-crimson/50 text-crimson tracking-widest uppercase text-sm hover:border-crimson hover:bg-crimson/5 transition-all" data-i18n="btn_request">Request Initiation</button>
+     </div>
+    </div>
+   </section>
+   <!-- Trust Indicators -->
+   <section id="trust" class="relative z-10 w-full py-16 px-6 border-y border-crimson/10">
+    <div class="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+     <div class="trust-badge p-4 border border-crimson/10 bg-deepblue/20 fade-up fade-up-1">
+      <i data-lucide="shield-check" class="w-8 h-8 text-crimson mx-auto mb-2"></i>
+      <div class="text-2xl font-bold text-crimson">
+       256-bit
+      </div>
+      <div class="text-xs text-ivory/50 uppercase tracking-wider" data-i18n="trust_encrypted">
+       Encrypted
+      </div>
+     </div>
+     <div class="trust-badge p-4 border border-crimson/10 bg-deepblue/20 fade-up fade-up-2">
+      <i data-lucide="users" class="w-8 h-8 text-crimson mx-auto mb-2"></i>
+      <div class="text-2xl font-bold text-crimson">
+       33,000+
+      </div>
+      <div class="text-xs text-ivory/50 uppercase tracking-wider" data-i18n="trust_members">
+       Members
+      </div>
+     </div>
+     <div class="trust-badge p-4 border border-crimson/10 bg-deepblue/20 fade-up fade-up-3">
+      <i data-lucide="globe" class="w-8 h-8 text-crimson mx-auto mb-2"></i>
+      <div class="text-2xl font-bold text-crimson">
+       147
+      </div>
+      <div class="text-xs text-ivory/50 uppercase tracking-wider" data-i18n="trust_countries">
+       Countries
+      </div>
+     </div>
+     <div class="trust-badge p-4 border border-crimson/10 bg-deepblue/20 fade-up fade-up-4">
+      <i data-lucide="award" class="w-8 h-8 text-crimson mx-auto mb-2"></i>
+      <div class="text-2xl font-bold text-crimson">
+       Est. 1776
+      </div>
+      <div class="text-xs text-ivory/50 uppercase tracking-wider" data-i18n="trust_legacy">
+       Legacy
+      </div>
+     </div>
+    </div>
+   </section>
+
+   <!-- Filter Section -->
+   <section id="products" class="relative z-10 w-full py-16 px-6 border-b border-crimson/10">
+    <div class="max-w-7xl mx-auto">
+     <div class="text-center mb-10">
+      <h2 class="text-3xl md:text-4xl text-crimson mb-4" data-i18n="section_artifacts">Sacred Artifacts</h2>
+      <p class="text-ivory/50 max-w-xl mx-auto mb-8" data-i18n="section_artifacts_desc">Each piece carries the weight of centuries. Crafted by masters, imbued with purpose.</p>
+     </div>
+     <div class="flex flex-wrap justify-center gap-3 mb-8">
+      <button class="filter-btn active px-6 py-2 border border-crimson/30 text-ivory/70 text-sm uppercase tracking-wider" onclick="filterProducts('all')" data-i18n="filter_all">All Artifacts</button>
+      <button class="filter-btn px-6 py-2 border border-crimson/30 text-ivory/70 text-sm uppercase tracking-wider" onclick="filterProducts('jewelry')" data-i18n="filter_jewelry">Jewelry</button>
+      <button class="filter-btn px-6 py-2 border border-crimson/30 text-ivory/70 text-sm uppercase tracking-wider" onclick="filterProducts('manuscripts')" data-i18n="filter_manuscripts">Manuscripts</button>
+      <button class="filter-btn px-6 py-2 border border-crimson/30 text-ivory/70 text-sm uppercase tracking-wider" onclick="filterProducts('tools')" data-i18n="filter_tools">Tools & Relics</button>
+     </div>
+    </div>
+   </section>
+   <!-- Products Section -->
+   <section class="relative z-10 w-full py-20 px-6">
+    <div class="max-w-7xl mx-auto">
+     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="products-grid">
+      <!-- Product 1 -->
+      <div class="product-card product jewelry border border-crimson/20 bg-gradient-to-b from-deepblue/40 to-obsidian/80 overflow-hidden group">
+       <div class="relative h-64 bg-gradient-to-br from-deepblue to-midnight flex items-center justify-center overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-t from-obsidian/60 to-transparent"></div>
+        <svg viewbox="0 0 120 120" width="100" height="100" class="relative z-10 opacity-80 group-hover:opacity-100 transition-opacity">
+         <polygon points="60,10 110,100 10,100" fill="none" stroke="#dc143c" stroke-width="2" />
+         <circle cx="60" cy="55" r="15" fill="none" stroke="#dc143c" stroke-width="2" />
+         <circle cx="60" cy="55" r="6" fill="#dc143c" />
+        </svg>
+        <div class="absolute top-3 right-3 px-3 py-1 bg-crimson/90 text-obsidian text-xs font-bold uppercase tracking-wider" data-i18n="badge_limited">
+         Limited
+        </div>
+       </div>
+       <div class="p-6">
+        <div class="star-rating text-sm mb-2">
+         ★★★★★ <span class="text-ivory/40 ml-1">(312)</span>
+        </div>
+        <h3 class="text-xl text-crimson mb-2" data-i18n="product1_name">The All-Seeing Pendant</h3>
+        <p class="text-ivory/50 text-sm mb-4 leading-relaxed" data-i18n="product1_desc">Hand-forged 24k gold pendant with sacred geometry. Worn by the inner circle since the 18th century.</p>
+        <div class="flex items-center justify-between">
+         <div>
+          <span class="text-2xl text-crimson font-bold">$2,777</span>
+          <span class="text-ivory/30 text-sm line-through ml-2">$3,500</span>
+         </div>
+         <button class="px-4 py-2 bg-crimson text-obsidian text-xs font-bold uppercase tracking-wider hover:bg-darkred transition-colors" data-i18n="btn_buy">Buy Now</button>
+        </div>
+       </div>
+      </div>
+      <!-- Product 2 -->
+      <div class="product-card product manuscripts border border-crimson/20 bg-gradient-to-b from-deepblue/40 to-obsidian/80 overflow-hidden group">
+       <div class="relative h-64 bg-gradient-to-br from-deepblue to-midnight flex items-center justify-center overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-t from-obsidian/60 to-transparent"></div>
+        <svg viewbox="0 0 120 120" width="100" height="100" class="relative z-10 opacity-80 group-hover:opacity-100 transition-opacity">
+         <rect x="25" y="15" width="70" height="90" rx="3" fill="none" stroke="#dc143c" stroke-width="1.5" />
+         <line x1="35" y1="35" x2="85" y2="35" stroke="#dc143c" stroke-width="0.5" />
+         <line x1="35" y1="50" x2="85" y2="50" stroke="#dc143c" stroke-width="0.5" />
+         <line x1="35" y1="65" x2="70" y2="65" stroke="#dc143c" stroke-width="0.5" />
+         <circle cx="60" cy="85" r="8" fill="none" stroke="#dc143c" stroke-width="1" />
+         <circle cx="60" cy="85" r="3" fill="#dc143c" />
+        </svg>
+        <div class="absolute top-3 right-3 px-3 py-1 bg-red-900/80 text-ivory text-xs font-bold uppercase tracking-wider" data-i18n="badge_rare">
+         Rare
+        </div>
+       </div>
+       <div class="p-6">
+        <div class="star-rating text-sm mb-2">
+         ★★★★★ <span class="text-ivory/40 ml-1">(89)</span>
+        </div>
+        <h3 class="text-xl text-crimson mb-2" data-i18n="product2_name">Codex of Enlightenment</h3>
+        <p class="text-ivory/50 text-sm mb-4 leading-relaxed" data-i18n="product2_desc">Leather-bound manuscript containing 33 degrees of hidden wisdom. Each page hand-inscribed.</p>
+        <div class="flex items-center justify-between">
+         <div>
+          <span class="text-2xl text-crimson font-bold">$4,999</span>
+          <span class="text-ivory/30 text-sm line-through ml-2">$6,200</span>
+         </div>
+         <button class="px-4 py-2 bg-crimson text-obsidian text-xs font-bold uppercase tracking-wider hover:bg-darkred transition-colors" data-i18n="btn_buy">Buy Now</button>
+        </div>
+       </div>
+      </div>
+      <!-- Product 3 -->
+      <div class="product-card product jewelry border border-crimson/20 bg-gradient-to-b from-deepblue/40 to-obsidian/80 overflow-hidden group">
+       <div class="relative h-64 bg-gradient-to-br from-deepblue to-midnight flex items-center justify-center overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-t from-obsidian/60 to-transparent"></div>
+        <svg viewbox="0 0 120 120" width="100" height="100" class="relative z-10 opacity-80 group-hover:opacity-100 transition-opacity">
+         <circle cx="60" cy="60" r="40" fill="none" stroke="#dc143c" stroke-width="1.5" />
+         <circle cx="60" cy="60" r="25" fill="none" stroke="#dc143c" stroke-width="1" />
+         <polygon points="60,25 65,50 90,50 70,65 77,90 60,75 43,90 50,65 30,50 55,50" fill="none" stroke="#dc143c" stroke-width="1" />
+        </svg>
+        <div class="absolute top-3 right-3 px-3 py-1 bg-crimson/90 text-obsidian text-xs font-bold uppercase tracking-wider" data-i18n="badge_bestseller">
+         Bestseller
+        </div>
+       </div>
+       <div class="p-6">
+        <div class="star-rating text-sm mb-2">
+         ★★★★★ <span class="text-ivory/40 ml-1">(1,204)</span>
+        </div>
+        <h3 class="text-xl text-crimson mb-2" data-i18n="product3_name">Sigil of Power Ring</h3>
+        <p class="text-ivory/50 text-sm mb-4 leading-relaxed" data-i18n="product3_desc">Obsidian and crimson signet ring. The pentacle design channels ancient energies of the Order.</p>
+        <div class="flex items-center justify-between">
+         <div>
+          <span class="text-2xl text-crimson font-bold">$1,333</span>
+          <span class="text-ivory/30 text-sm line-through ml-2">$1,800</span>
+         </div>
+         <button class="px-4 py-2 bg-crimson text-obsidian text-xs font-bold uppercase tracking-wider hover:bg-darkred transition-colors" data-i18n="btn_buy">Buy Now</button>
+        </div>
+       </div>
+      </div>
+      <!-- Product 4 -->
+      <div class="product-card product tools border border-crimson/20 bg-gradient-to-b from-deepblue/40 to-obsidian/80 overflow-hidden group">
+       <div class="relative h-64 bg-gradient-to-br from-deepblue to-midnight flex items-center justify-center overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-t from-obsidian/60 to-transparent"></div>
+        <svg viewbox="0 0 120 120" width="100" height="100" class="relative z-10 opacity-80 group-hover:opacity-100 transition-opacity">
+         <path d="M30 100 L60 40 L90 100 Z" fill="none" stroke="#dc143c" stroke-width="2" />
+         <circle cx="60" cy="60" r="12" fill="none" stroke="#dc143c" stroke-width="1.5" />
+         <line x1="30" y1="100" x2="90" y2="100" stroke="#dc143c" stroke-width="2" />
+        </svg>
+        <div class="absolute top-3 right-3 px-3 py-1 bg-crimson/90 text-obsidian text-xs font-bold uppercase tracking-wider" data-i18n="badge_new">
+         New
+        </div>
+       </div>
+       <div class="p-6">
+        <div class="star-rating text-sm mb-2">
+         ★★★★★ <span class="text-ivory/40 ml-1">(156)</span>
+        </div>
+        <h3 class="text-xl text-crimson mb-2" data-i18n="product4_name">Ceremonial Dagger</h3>
+        <p class="text-ivory/50 text-sm mb-4 leading-relaxed" data-i18n="product4_desc">Damascus steel blade with crimson lacquer grip. Used in the highest rituals of initiation.</p>
+        <div class="flex items-center justify-between">
+         <div>
+          <span class="text-2xl text-crimson font-bold">$3,333</span>
+          <span class="text-ivory/30 text-sm line-through ml-2">$4,200</span>
+         </div>
+         <button class="px-4 py-2 bg-crimson text-obsidian text-xs font-bold uppercase tracking-wider hover:bg-darkred transition-colors" data-i18n="btn_buy">Buy Now</button>
+        </div>
+       </div>
+      </div>
+      <!-- Product 5 -->
+      <div class="product-card product manuscripts border border-crimson/20 bg-gradient-to-b from-deepblue/40 to-obsidian/80 overflow-hidden group">
+       <div class="relative h-64 bg-gradient-to-br from-deepblue to-midnight flex items-center justify-center overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-t from-obsidian/60 to-transparent"></div>
+        <svg viewbox="0 0 120 120" width="100" height="100" class="relative z-10 opacity-80 group-hover:opacity-100 transition-opacity">
+         <circle cx="60" cy="50" r="35" fill="none" stroke="#dc143c" stroke-width="1.5" />
+         <path d="M30 60 Q60 85 90 60" fill="none" stroke="#dc143c" stroke-width="1.5" />
+         <circle cx="60" cy="60" r="8" fill="none" stroke="#dc143c" stroke-width="1" />
+        </svg>
+        <div class="absolute top-3 right-3 px-3 py-1 bg-red-900/80 text-ivory text-xs font-bold uppercase tracking-wider" data-i18n="badge_sacred">
+         Sacred
+        </div>
+       </div>
+       <div class="p-6">
+        <div class="star-rating text-sm mb-2">
+         ★★★★★ <span class="text-ivory/40 ml-1">(73)</span>
+        </div>
+        <h3 class="text-xl text-crimson mb-2" data-i18n="product5_name">Seal of Solomon</h3>
+        <p class="text-ivory/50 text-sm mb-4 leading-relaxed" data-i18n="product5_desc">Antique wax seal impression book. Contains the sigils of the 72 spirits of the hierarchy.</p>
+        <div class="flex items-center justify-between">
+         <div>
+          <span class="text-2xl text-crimson font-bold">$1,888</span>
+          <span class="text-ivory/30 text-sm line-through ml-2">$2,500</span>
+         </div>
+         <button class="px-4 py-2 bg-crimson text-obsidian text-xs font-bold uppercase tracking-wider hover:bg-darkred transition-colors" data-i18n="btn_buy">Buy Now</button>
+        </div>
+       </div>
+      </div>
+      <!-- Product 6 -->
+      <div class="product-card product jewelry border border-crimson/20 bg-gradient-to-b from-deepblue/40 to-obsidian/80 overflow-hidden group">
+       <div class="relative h-64 bg-gradient-to-br from-deepblue to-midnight flex items-center justify-center overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-t from-obsidian/60 to-transparent"></div>
+        <svg viewbox="0 0 120 120" width="100" height="100" class="relative z-10 opacity-80 group-hover:opacity-100 transition-opacity">
+         <rect x="40" y="20" width="40" height="60" fill="none" stroke="#dc143c" stroke-width="2" />
+         <circle cx="60" cy="35" r="8" fill="none" stroke="#dc143c" stroke-width="1.5" />
+         <line x1="45" y1="50" x2="75" y2="50" stroke="#dc143c" stroke-width="1" />
+         <polygon points="60,60 55,75 65,75" fill="#dc143c" />
+        </svg>
+        <div class="absolute top-3 right-3 px-3 py-1 bg-crimson/90 text-obsidian text-xs font-bold uppercase tracking-wider" data-i18n="badge_limited">
+         Limited
+        </div>
+       </div>
+       <div class="p-6">
+        <div class="star-rating text-sm mb-2">
+         ★★★★★ <span class="text-ivory/40 ml-1">(521)</span>
+        </div>
+        <h3 class="text-xl text-crimson mb-2" data-i18n="product6_name">Crown of Wisdom</h3>
+        <p class="text-ivory/50 text-sm mb-4 leading-relaxed" data-i18n="product6_desc">Ceremonial headdress crafted from obsidian and crimson stone. Amplifies intuition and insight.</p>
+        <div class="flex items-center justify-between">
+         <div>
+          <span class="text-2xl text-crimson font-bold">$5,555</span>
+          <span class="text-ivory/30 text-sm line-through ml-2">$7,000</span>
+         </div>
+         <button class="px-4 py-2 bg-crimson text-obsidian text-xs font-bold uppercase tracking-wider hover:bg-darkred transition-colors" data-i18n="btn_buy">Buy Now</button>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section>
+
+   <!-- Testimonials -->
+   <section id="testimonials" class="relative z-10 w-full py-20 px-6 bg-deepblue/20 border-y border-crimson/10">
+    <div class="max-w-5xl mx-auto">
+     <h2 class="text-3xl md:text-4xl text-crimson text-center mb-14" data-i18n="section_testimonials">Words from the Brotherhood</h2>
+     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div class="p-6 border border-crimson/15 bg-obsidian/60 pulse-b">
+       <div class="star-rating mb-3">
+        ★★★★★
+       </div>
+       <p class="text-ivory/60 italic mb-4 leading-relaxed" data-i18n="testimonial1">"The pendant changed the trajectory of my life. Doors opened that I never knew existed."</p>
+       <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-crimson to-darkred flex items-center justify-center text-obsidian font-bold text-sm">
+         VR
+        </div>
+        <div>
+         <div class="text-crimson text-sm font-semibold">
+          V. Rothschild
+         </div>
+         <div class="text-ivory/30 text-xs" data-i18n="testimonial1_role">
+          33rd Degree • Verified
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="p-6 border border-crimson/15 bg-obsidian/60 pulse-b" style="animation-delay:0.7s">
+       <div class="star-rating mb-3">
+        ★★★★★
+       </div>
+       <p class="text-ivory/60 italic mb-4 leading-relaxed" data-i18n="testimonial2">"The Codex revealed truths that no university could teach. Worth every cent of the investment."</p>
+       <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-crimson to-darkred flex items-center justify-center text-obsidian font-bold text-sm">
+         MK
+        </div>
+        <div>
+         <div class="text-crimson text-sm font-semibold">
+          M. Knightley
+         </div>
+         <div class="text-ivory/30 text-xs" data-i18n="testimonial2_role">
+          Grand Master • Verified
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="p-6 border border-crimson/15 bg-obsidian/60 pulse-b" style="animation-delay:1.4s">
+       <div class="star-rating mb-3">
+        ★★★★★
+       </div>
+       <p class="text-ivory/60 italic mb-4 leading-relaxed" data-i18n="testimonial3">"I wear the Sigil Ring daily. Its presence commands respect in every room I enter."</p>
+       <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-crimson to-darkred flex items-center justify-center text-obsidian font-bold text-sm">
+         DA
+        </div>
+        <div>
+         <div class="text-crimson text-sm font-semibold">
+          D. Arcanum
+         </div>
+         <div class="text-ivory/30 text-xs" data-i18n="testimonial3_role">
+          Inner Circle • Verified
+         </div>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section>
+   <!-- Bespoke Services Section -->
+   <section id="bespoke" class="relative z-10 w-full py-20 px-6 bespoke-section">
+    <div class="max-w-4xl mx-auto">
+     <div class="text-center mb-12">
+      <div class="inline-block px-4 py-2 border border-crimson/30 bg-obsidian/50 rounded-full mb-4 text-crimson text-xs uppercase tracking-wider" data-i18n="bespoke_badge">
+       Off-Market Services
+      </div>
+      <h2 class="text-3xl md:text-4xl text-crimson mb-4" data-i18n="bespoke_title">Bespoke Artifacts & Commissions</h2>
+      <p class="text-ivory/60 leading-relaxed" data-i18n="bespoke_desc">For those seeking items beyond our catalog. We work with a select circle of master craftsmen to create custom artifacts imbued with your personal sigils and intentions.</p>
+     </div>
+     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+      <div class="p-6 border border-crimson/20 bg-obsidian/80 rounded-lg">
+       <i data-lucide="crown" class="w-8 h-8 text-crimson mb-4"></i>
+       <h3 class="text-lg text-crimson font-semibold mb-3" data-i18n="bespoke1_title">Custom Regalia</h3>
+       <p class="text-ivory/60 text-sm leading-relaxed" data-i18n="bespoke1_desc">Ceremonial garments and regalia crafted to your exact specifications and degree.</p>
+      </div>
+      <div class="p-6 border border-crimson/20 bg-obsidian/80 rounded-lg">
+       <i data-lucide="scroll" class="w-8 h-8 text-crimson mb-4"></i>
+       <h3 class="text-lg text-crimson font-semibold mb-3" data-i18n="bespoke2_title">Personal Grimoire</h3>
+       <p class="text-ivory/60 text-sm leading-relaxed" data-i18n="bespoke2_desc">Handwritten books of shadows bound in fine leather with your name in crimson ink.</p>
+      </div>
+      <div class="p-6 border border-crimson/20 bg-obsidian/80 rounded-lg">
+       <i data-lucide="sparkles" class="w-8 h-8 text-crimson mb-4"></i>
+       <h3 class="text-lg text-crimson font-semibold mb-3" data-i18n="bespoke3_title">Unique Talismans</h3>
+       <p class="text-ivory/60 text-sm leading-relaxed" data-i18n="bespoke3_desc">One-of-a-kind pieces created for your journey of enlightenment and power.</p>
+      </div>
+     </div>
+     <div class="text-center">
+      <button onclick="document.getElementById('bespoke-modal').classList.remove('hidden')" class="glow px-8 py-4 bg-gradient-to-r from-crimson to-darkred text-obsidian font-semibold tracking-widest uppercase text-sm hover:scale-105 transition-transform" data-i18n="btn_consultation">Request Consultation</button>
+      <p class="text-ivory/40 text-xs uppercase tracking-wider mt-4" data-i18n="bespoke_note">Our concierge will contact you within 24 hours</p>
+     </div>
+    </div>
+   </section>
+   <!-- Guarantee Section -->
+   <section class="relative z-10 w-full py-20 px-6">
+    <div class="max-w-3xl mx-auto text-center">
+     <div class="w-20 h-20 mx-auto mb-6 border-2 border-crimson rounded-full flex items-center justify-center">
+      <i data-lucide="shield" class="w-10 h-10 text-crimson"></i>
+     </div>
+     <h2 class="text-2xl md:text-3xl text-crimson mb-4" data-i18n="guarantee_title">Sacred Oath Guarantee</h2>
+     <p class="text-ivory/50 leading-relaxed mb-8" data-i18n="guarantee_desc">Every artifact is authenticated by the Grand Council. If your purchase does not meet your expectations within 30 days, we honor a full return — no questions asked. Your trust is our covenant.</p>
+     <div class="flex flex-wrap justify-center gap-6 text-sm text-ivory/40">
+      <div class="flex items-center gap-2">
+       <i data-lucide="check-circle" class="w-4 h-4 text-crimson"></i>
+       <span data-i18n="guarantee1">Free Worldwide Shipping</span>
+      </div>
+      <div class="flex items-center gap-2">
+       <i data-lucide="check-circle" class="w-4 h-4 text-crimson"></i>
+       <span data-i18n="guarantee2">Certificate of Authenticity</span>
+      </div>
+      <div class="flex items-center gap-2">
+       <i data-lucide="check-circle" class="w-4 h-4 text-crimson"></i>
+       <span data-i18n="guarantee3">Discreet Packaging</span>
+      </div>
+     </div>
+    </div>
+   </section>
+   <!-- CTA Before Footer -->
+   <section class="relative z-10 w-full py-16 px-6 border-t border-crimson/10 bg-gradient-to-r from-deepblue/30 to-midnight/50">
+    <div class="max-w-4xl mx-auto text-center">
+     <h2 id="join-headline" class="text-2xl md:text-3xl text-crimson mb-4" data-i18n="join_headline">Ascend to the Inner Circle</h2>
+     <p id="join-subtext" class="text-ivory/60 mb-8 leading-relaxed" data-i18n="join_subtext">Those who seek power must prove their worth. Join our exclusive membership and gain access to restricted auctions, VIP previews, and private ceremonies.</p>
+     <div class="flex flex-col sm:flex-row gap-4 justify-center">
+      <button onclick="document.getElementById('join-modal').classList.remove('hidden')" class="glow px-8 py-4 bg-gradient-to-r from-crimson to-darkred text-obsidian font-semibold tracking-widest uppercase text-sm hover:scale-105 transition-transform" data-i18n="btn_join">Join Now</button>
+      <button onclick="document.getElementById('bespoke-modal').classList.remove('hidden')" class="px-8 py-4 border border-crimson/50 text-crimson tracking-widest uppercase text-sm hover:border-crimson hover:bg-crimson/5 transition-all" data-i18n="btn_bespoke">Request Bespoke Service</button>
+     </div>
+    </div>
+   </section>
+   <!-- Footer -->
+   <footer class="relative z-10 w-full py-12 px-6 border-t border-crimson/20 bg-midnight/50">
+    <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+     <div class="flex items-center gap-3">
+      <svg viewbox="0 0 30 30" width="24" height="24">
+       <polygon points="15,2 28,26 2,26" fill="none" stroke="#dc143c" stroke-width="1.5" />
+       <circle cx="15" cy="16" r="3" fill="#dc143c" />
+      </svg>
+      <span class="nav-title text-crimson text-sm tracking-widest">THE ORDER © 2024</span>
+     </div>
+     <div class="flex items-center gap-6 text-ivory/30 text-xs uppercase tracking-wider">
+      <span>Novus Ordo Seclorum</span>
+      <span>•</span>
+      <span>Annuit Cœptis</span>
+     </div>
+    </div>
+   </footer>
+   <!-- Join Modal -->
+   <div id="join-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+    <div class="bg-gradient-to-b from-deepblue to-obsidian border border-crimson/30 rounded-lg max-w-md w-full p-8">
+     <div class="flex justify-between items-center mb-6">
+      <h3 class="text-2xl text-crimson font-semibold" data-i18n="modal_join_title">Request Initiation</h3>
+      <button onclick="document.getElementById('join-modal').classList.add('hidden')" class="text-ivory/50 hover:text-ivory">
+       <i data-lucide="x" class="w-6 h-6"></i>
+      </button>
+     </div>
+     <form onsubmit="handleJoinSubmit(event)">
+      <div class="mb-4">
+       <label class="text-ivory text-sm mb-2 block" data-i18n="label_name">Full Name</label>
+       <input type="text" class="w-full bg-obsidian border border-crimson/30 rounded px-3 py-2 text-ivory placeholder-ivory/30 focus:border-crimson focus:outline-none" placeholder="Your name" required>
+      </div>
+      <div class="mb-4">
+       <label class="text-ivory text-sm mb-2 block" data-i18n="label_email">Email Address</label>
+       <input type="email" class="w-full bg-obsidian border border-crimson/30 rounded px-3 py-2 text-ivory placeholder-ivory/30 focus:border-crimson focus:outline-none" placeholder="your@email.com" required>
+      </div>
+      <div class="mb-6">
+       <label class="text-ivory text-sm mb-2 block" data-i18n="label_message">Message</label>
+       <textarea class="w-full bg-obsidian border border-crimson/30 rounded px-3 py-2 text-ivory placeholder-ivory/30 focus:border-crimson focus:outline-none h-24" placeholder="Tell us about your journey..." required></textarea>
+      </div>
+      <button type="submit" class="w-full glow px-6 py-3 bg-gradient-to-r from-crimson to-darkred text-obsidian font-semibold tracking-widest uppercase text-sm hover:scale-105 transition-transform rounded" data-i18n="btn_submit">Submit Application</button>
+      <p class="text-ivory/40 text-xs text-center mt-4" data-i18n="modal_join_note">Your application will be reviewed by the Grand Council</p>
+     </form>
+    </div>
+   </div>
+   <!-- Bespoke Modal -->
+   <div id="bespoke-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+    <div class="bg-gradient-to-b from-deepblue to-obsidian border border-crimson/30 rounded-lg max-w-md w-full p-8">
+     <div class="flex justify-between items-center mb-6">
+      <h3 class="text-2xl text-crimson font-semibold" data-i18n="modal_bespoke_title">Bespoke Consultation</h3>
+      <button onclick="document.getElementById('bespoke-modal').classList.add('hidden')" class="text-ivory/50 hover:text-ivory">
+       <i data-lucide="x" class="w-6 h-6"></i>
+      </button>
+     </div>
+     <form onsubmit="handleBespokeSubmit(event)">
+      <div class="mb-4">
+       <label class="text-ivory text-sm mb-2 block" data-i18n="label_name">Full Name</label>
+       <input type="text" class="w-full bg-obsidian border border-crimson/30 rounded px-3 py-2 text-ivory placeholder-ivory/30 focus:border-crimson focus:outline-none" placeholder="Your name" required>
+      </div>
+      <div class="mb-4">
+       <label class="text-ivory text-sm mb-2 block" data-i18n="label_email">Email Address</label>
+       <input type="email" class="w-full bg-obsidian border border-crimson/30 rounded px-3 py-2 text-ivory placeholder-ivory/30 focus:border-crimson focus:outline-none" placeholder="your@email.com" required>
+      </div>
+      <div class="mb-6">
+       <label class="text-ivory text-sm mb-2 block" data-i18n="label_vision">Your Vision</label>
+       <textarea class="w-full bg-obsidian border border-crimson/30 rounded px-3 py-2 text-ivory placeholder-ivory/30 focus:border-crimson focus:outline-none h-24" placeholder="Describe your ideal artifact..." required></textarea>
+      </div>
+      <button type="submit" class="w-full glow px-6 py-3 bg-gradient-to-r from-crimson to-darkred text-obsidian font-semibold tracking-widest uppercase text-sm hover:scale-105 transition-transform rounded" data-i18n="btn_submit">Request Consultation</button>
+      <p class="text-ivory/40 text-xs text-center mt-4" data-i18n="modal_bespoke_note">Our artisans will contact you within 48 hours</p>
+     </form>
+    </div>
+   </div>
+  </div>
+
+  <script>
+    // ============================================
+    // TRANSLATION SYSTEM — 6 LANGUAGES
+    // Default: French (fr)
+    // ============================================
+    const translations = {
+      fr: {
+        nav_artifacts: "Artéfacts",
+        nav_bespoke: "Sur Mesure",
+        nav_testimonials: "Témoignages",
+        btn_join: "REJOINDRE",
+        hero_headline: "Artéfacts Exclusifs pour les Élus",
+        hero_subtext: "Accédez aux savoirs interdits, aux reliques sacrées et aux outils d'ascension. Réservé exclusivement à ceux qui cherchent la lumière au-delà du voile.",
+        btn_explore: "Explorer les Artéfacts",
+        btn_request: "Demander l'Initiation",
+        trust_encrypted: "Chiffré",
+        trust_members: "Membres",
+        trust_countries: "Pays",
+        trust_legacy: "Héritage",
+        section_artifacts: "Artéfacts Sacrés",
+        section_artifacts_desc: "Chaque pièce porte le poids des siècles. Façonnée par des maîtres, imprégnée de purpose.",
+        filter_all: "Tous les Artéfacts",
+        filter_jewelry: "Bijoux",
+        filter_manuscripts: "Manuscrits",
+        filter_tools: "Outils & Reliques",
+        badge_limited: "Limité",
+        badge_rare: "Rare",
+        badge_bestseller: "Best-seller",
+        badge_new: "Nouveau",
+        badge_sacred: "Sacré",
+        product1_name: "Le Pendentif Omniscient",
+        product1_desc: "Pendentif en or 24 carats forgé à la main avec géométrie sacrée. Porté par le cercle intérieur depuis le XVIIIe siècle.",
+        product2_name: "Codex de l'Illumination",
+        product2_desc: "Manuscrit relié de cuir contenant 33 degrés de sagesse cachée. Chaque page inscrite à la main.",
+        product3_name: "Anneau du Sceau de Pouvoir",
+        product3_desc: "Chevalière en obsidienne et cramoisi. Le pentacle canalise les énergies anciennes de l'Ordre.",
+        product4_name: "Dague Cérémonielle",
+        product4_desc: "Lame en acier damassé avec poignée laquée cramoisi. Utilisée dans les plus hauts rituels d'initiation.",
+        product5_name: "Sceau de Salomon",
+        product5_desc: "Livre d'impressions de sceaux en cire antique. Contient les sigils des 72 esprits de la hiérarchie.",
+        product6_name: "Couronne de Sagesse",
+        product6_desc: "Coiffe cérémonielle façonnée en obsidienne et pierre cramoise. Amplifie l'intuition et la clairvoyance.",
+        btn_buy: "Acheter",
+        section_testimonials: "Paroles de la Fraternité",
+        testimonial1: '"Le pendentif a changé la trajectoire de ma vie. Des portes se sont ouvertes que je ne connaissais pas."',
+        testimonial1_role: "33e Degré • Vérifié",
+        testimonial2: '"Le Codex a révélé des vérités qu\'aucune université ne pouvait enseigner. Chaque centime de l\'investissement en valait la peine."',
+        testimonial2_role: "Grand Maître • Vérifié",
+        testimonial3: '"Je porte l\'Anneau du Sceau quotidiennement. Sa présence impose le respect dans chaque pièce où j\'entre."',
+        testimonial3_role: "Cercle Intérieur • Vérifié",
+        bespoke_badge: "Services Hors Marché",
+        bespoke_title: "Artéfacts & Commissions Sur Mesure",
+        bespoke_desc: "Pour ceux qui recherchent des pièces au-delà de notre catalogue. Nous travaillons avec un cercle restreint d'artisans maîtres pour créer des artéfacts personnalisés imprégnés de vos sigils et intentions.",
+        bespoke1_title: "Regalia Personnalisé",
+        bespoke1_desc: "Vêtements et regalia cérémoniels confectionnés selon vos spécifications exactes et votre degré.",
+        bespoke2_title: "Grimoire Personnel",
+        bespoke2_desc: "Livres des ombres écrits à la main, reliés de cuir fin avec votre nom en encre cramoisie.",
+        bespoke3_title: "Talismans Uniques",
+        bespoke3_desc: "Pièces uniques créées pour votre voyage d'illumination et de pouvoir.",
+        btn_consultation: "Demander une Consultation",
+        bespoke_note: "Notre concierge vous contactera sous 24 heures",
+        guarantee_title: "Garantie du Serment Sacré",
+        guarantee_desc: "Chaque artéfact est authentifié par le Grand Conseil. Si votre achat ne répond pas à vos attentes dans les 30 jours, nous honorons un remboursement complet — sans poser de questions. Votre confiance est notre alliance.",
+        guarantee1: "Livraison Mondiale Gratuite",
+        guarantee2: "Certificat d'Authenticité",
+        guarantee3: "Emballage Discret",
+        join_headline: "Accéder au Cercle Intérieur",
+        join_subtext: "Ceux qui cherchent le pouvoir doivent prouver leur valeur. Rejoignez notre adhésion exclusive et accédez aux enchères restreintes, aux avant-premières VIP et aux cérémonies privées.",
+        btn_bespoke: "Demander un Service Sur Mesure",
+        modal_join_title: "Demander l'Initiation",
+        modal_bespoke_title: "Consultation Sur Mesure",
+        label_name: "Nom Complet",
+        label_email: "Adresse Email",
+        label_message: "Message",
+        label_vision: "Votre Vision",
+        btn_submit: "Soumettre",
+        modal_join_note: "Votre candidature sera examinée par le Grand Conseil",
+        modal_bespoke_note: "Nos artisans vous contacteront sous 48 heures"
+      },
+      en: {
+        nav_artifacts: "Artifacts",
+        nav_bespoke: "Bespoke",
+        nav_testimonials: "Testimonials",
+        btn_join: "JOIN US",
+        hero_headline: "Exclusive Artifacts for the Enlightened",
+        hero_subtext: "Access forbidden knowledge, sacred relics, and tools of ascension. Reserved exclusively for those who seek the light beyond the veil.",
+        btn_explore: "Explore Artifacts",
+        btn_request: "Request Initiation",
+        trust_encrypted: "Encrypted",
+        trust_members: "Members",
+        trust_countries: "Countries",
+        trust_legacy: "Legacy",
+        section_artifacts: "Sacred Artifacts",
+        section_artifacts_desc: "Each piece carries the weight of centuries. Crafted by masters, imbued with purpose.",
+        filter_all: "All Artifacts",
+        filter_jewelry: "Jewelry",
+        filter_manuscripts: "Manuscripts",
+        filter_tools: "Tools & Relics",
+        badge_limited: "Limited",
+        badge_rare: "Rare",
+        badge_bestseller: "Bestseller",
+        badge_new: "New",
+        badge_sacred: "Sacred",
+        product1_name: "The All-Seeing Pendant",
+        product1_desc: "Hand-forged 24k gold pendant with sacred geometry. Worn by the inner circle since the 18th century.",
+        product2_name: "Codex of Enlightenment",
+        product2_desc: "Leather-bound manuscript containing 33 degrees of hidden wisdom. Each page hand-inscribed.",
+        product3_name: "Sigil of Power Ring",
+        product3_desc: "Obsidian and crimson signet ring. The pentacle design channels ancient energies of the Order.",
+        product4_name: "Ceremonial Dagger",
+        product4_desc: "Damascus steel blade with crimson lacquer grip. Used in the highest rituals of initiation.",
+        product5_name: "Seal of Solomon",
+        product5_desc: "Antique wax seal impression book. Contains the sigils of the 72 spirits of the hierarchy.",
+        product6_name: "Crown of Wisdom",
+        product6_desc: "Ceremonial headdress crafted from obsidian and crimson stone. Amplifies intuition and insight.",
+        btn_buy: "Buy Now",
+        section_testimonials: "Words from the Brotherhood",
+        testimonial1: '"The pendant changed the trajectory of my life. Doors opened that I never knew existed."',
+        testimonial1_role: "33rd Degree • Verified",
+        testimonial2: '"The Codex revealed truths that no university could teach. Worth every cent of the investment."',
+        testimonial2_role: "Grand Master • Verified",
+        testimonial3: '"I wear the Sigil Ring daily. Its presence commands respect in every room I enter."',
+        testimonial3_role: "Inner Circle • Verified",
+        bespoke_badge: "Off-Market Services",
+        bespoke_title: "Bespoke Artifacts & Commissions",
+        bespoke_desc: "For those seeking items beyond our catalog. We work with a select circle of master craftsmen to create custom artifacts imbued with your personal sigils and intentions.",
+        bespoke1_title: "Custom Regalia",
+        bespoke1_desc: "Ceremonial garments and regalia crafted to your exact specifications and degree.",
+        bespoke2_title: "Personal Grimoire",
+        bespoke2_desc: "Handwritten books of shadows bound in fine leather with your name in crimson ink.",
+        bespoke3_title: "Unique Talismans",
+        bespoke3_desc: "One-of-a-kind pieces created for your journey of enlightenment and power.",
+        btn_consultation: "Request Consultation",
+        bespoke_note: "Our concierge will contact you within 24 hours",
+        guarantee_title: "Sacred Oath Guarantee",
+        guarantee_desc: "Every artifact is authenticated by the Grand Council. If your purchase does not meet your expectations within 30 days, we honor a full return — no questions asked. Your trust is our covenant.",
+        guarantee1: "Free Worldwide Shipping",
+        guarantee2: "Certificate of Authenticity",
+        guarantee3: "Discreet Packaging",
+        join_headline: "Ascend to the Inner Circle",
+        join_subtext: "Those who seek power must prove their worth. Join our exclusive membership and gain access to restricted auctions, VIP previews, and private ceremonies.",
+        btn_bespoke: "Request Bespoke Service",
+        modal_join_title: "Request Initiation",
+        modal_bespoke_title: "Bespoke Consultation",
+        label_name: "Full Name",
+        label_email: "Email Address",
+        label_message: "Message",
+        label_vision: "Your Vision",
+        btn_submit: "Submit Application",
+        modal_join_note: "Your application will be reviewed by the Grand Council",
+        modal_bespoke_note: "Our artisans will contact you within 48 hours"
+      },
+      es: {
+        nav_artifacts: "Artefactos",
+        nav_bespoke: "A Medida",
+        nav_testimonials: "Testimonios",
+        btn_join: "UNIRSE",
+        hero_headline: "Artefactos Exclusivos para los Iluminados",
+        hero_subtext: "Acceda al conocimiento prohibido, reliquias sagradas y herramientas de ascensión. Reservado exclusivamente para quienes buscan la luz más allá del velo.",
+        btn_explore: "Explorar Artefactos",
+        btn_request: "Solicitar Iniciación",
+        trust_encrypted: "Cifrado",
+        trust_members: "Miembros",
+        trust_countries: "Países",
+        trust_legacy: "Legado",
+        section_artifacts: "Artefactos Sagrados",
+        section_artifacts_desc: "Cada pieza lleva el peso de los siglos. Forjada por maestros, imbuida de propósito.",
+        filter_all: "Todos los Artefactos",
+        filter_jewelry: "Joyería",
+        filter_manuscripts: "Manuscritos",
+        filter_tools: "Herramientas y Reliquias",
+        badge_limited: "Limitado",
+        badge_rare: "Raro",
+        badge_bestseller: "Más Vendido",
+        badge_new: "Nuevo",
+        badge_sacred: "Sagrado",
+        product1_name: "El Colgante Omnisciente",
+        product1_desc: "Colgante de oro de 24 quilates forjado a mano con geometría sagrada. Usado por el círculo interior desde el siglo XVIII.",
+        product2_name: "Códice de la Iluminación",
+        product2_desc: "Manuscrito encuadernado en cuero que contiene 33 grados de sabiduría oculta. Cada página inscrita a mano.",
+        product3_name: "Anillo del Sigilo de Poder",
+        product3_desc: "Anillo de sello de obsidiana y carmesí. El diseño del pentáculo canaliza las energías antiguas de la Orden.",
+        product4_name: "Daga Ceremonial",
+        product4_desc: "Hoja de acero damasco con empuñadura de laca carmesí. Utilizada en los rituales más elevados de iniciación.",
+        product5_name: "Sello de Salomón",
+        product5_desc: "Libro de impresiones de sellos de cera antiguos. Contiene los sigilos de los 72 espíritus de la jerarquía.",
+        product6_name: "Corona de Sabiduría",
+        product6_desc: "Tocado ceremonial elaborado en obsidiana y piedra carmesí. Amplifica la intuición y la clarividencia.",
+        btn_buy: "Comprar Ahora",
+        section_testimonials: "Palabras de la Fraternidad",
+        testimonial1: '"El colgante cambió la trayectoria de mi vida. Se abrieron puertas que nunca supe que existían."',
+        testimonial1_role: "33er Grado • Verificado",
+        testimonial2: '"El Códice reveló verdades que ninguna universidad podía enseñar. Cada centavo de la inversión valió la pena."',
+        testimonial2_role: "Gran Maestro • Verificado",
+        testimonial3: '"Llevo el Anillo del Sigilo a diario. Su presencia impone respeto en cada sala en la que entro."',
+        testimonial3_role: "Círculo Interior • Verificado",
+        bespoke_badge: "Servicios Fuera del Mercado",
+        bespoke_title: "Artefactos y Comisiones a Medida",
+        bespoke_desc: "Para quienes buscan piezas más allá de nuestro catálogo. Trabajamos con un círculo selecto de maestros artesanos para crear artefactos personalizados imbuidos con sus sigilos e intenciones personales.",
+        bespoke1_title: "Regalia Personalizada",
+        bespoke1_desc: "Vestimentas y regalia ceremoniales confeccionadas según sus especificaciones exactas y grado.",
+        bespoke2_title: "Grimorio Personal",
+        bespoke2_desc: "Libros de sombras escritos a mano, encuadernados en cuero fino con su nombre en tinta carmesí.",
+        bespoke3_title: "Talismanes Únicos",
+        bespoke3_desc: "Piezas únicas creadas para su viaje de iluminación y poder.",
+        btn_consultation: "Solicitar Consulta",
+        bespoke_note: "Nuestro concierge se pondrá en contacto en 24 horas",
+        guarantee_title: "Garantía del Juramento Sagrado",
+        guarantee_desc: "Cada artefacto es autenticado por el Gran Consejo. Si su compra no cumple sus expectativas en 30 días, honramos una devolución completa — sin hacer preguntas. Su confianza es nuestro pacto.",
+        guarantee1: "Envío Mundial Gratuito",
+        guarantee2: "Certificado de Autenticidad",
+        guarantee3: "Embalaje Discreto",
+        join_headline: "Ascender al Círculo Interior",
+        join_subtext: "Quienes buscan poder deben probar su valía. Únase a nuestra membresía exclusiva y obtenga acceso a subastas restringidas, vistas previas VIP y ceremonias privadas.",
+        btn_bespoke: "Solicitar Servicio a Medida",
+        modal_join_title: "Solicitar Iniciación",
+        modal_bespoke_title: "Consulta a Medida",
+        label_name: "Nombre Completo",
+        label_email: "Correo Electrónico",
+        label_message: "Mensaje",
+        label_vision: "Su Visión",
+        btn_submit: "Enviar Solicitud",
+        modal_join_note: "Su solicitud será revisada por el Gran Consejo",
+        modal_bespoke_note: "Nuestros artesanos se pondrán en contacto en 48 horas"
+      },
+
+      de: {
+        nav_artifacts: "Artefakte",
+        nav_bespoke: "Maßgeschneidert",
+        nav_testimonials: "Testimonials",
+        btn_join: "BEITRETEN",
+        hero_headline: "Exklusive Artefakte für die Erleuchteten",
+        hero_subtext: "Zugang zu verbotenem Wissen, heiligen Reliquien und Werkzeugen der Erhebung. Exklusiv für diejenigen, die das Licht jenseits des Schleiers suchen.",
+        btn_explore: "Artefakte Erkunden",
+        btn_request: "Initiation Beantragen",
+        trust_encrypted: "Verschlüsselt",
+        trust_members: "Mitglieder",
+        trust_countries: "Länder",
+        trust_legacy: "Erbe",
+        section_artifacts: "Heilige Artefakte",
+        section_artifacts_desc: "Jedes Stück trägt das Gewicht der Jahrhunderte. Von Meistern geschaffen, durchdrungen von Zweck.",
+        filter_all: "Alle Artefakte",
+        filter_jewelry: "Schmuck",
+        filter_manuscripts: "Manuskripte",
+        filter_tools: "Werkzeuge & Reliquien",
+        badge_limited: "Limitiert",
+        badge_rare: "Selten",
+        badge_bestseller: "Bestseller",
+        badge_new: "Neu",
+        badge_sacred: "Heilig",
+        product1_name: "Der Allsehende Anhänger",
+        product1_desc: "Handgeschmiedeter 24-karätiger Goldanhänger mit heiliger Geometrie. Vom inneren Kreis seit dem 18. Jahrhundert getragen.",
+        product2_name: "Kodex der Erleuchtung",
+        product2_desc: "Ledergebundenes Manuskript mit 33 Graden verborgener Weisheit. Jede Seite handbeschrieben.",
+        product3_name: "Siegelring der Macht",
+        product3_desc: "Obsidian- und karmesinroter Siegelring. Das Pentakel-Design kanalisiert die uralten Energien des Ordens.",
+        product4_name: "Zeremonieller Dolch",
+        product4_desc: "Damaststahlklinge mit karmesinrotem Lackgriff. Verwendet in den höchsten Initiationsritualen.",
+        product5_name: "Siegel Salomos",
+        product5_desc: "Antikes Wachssiegel-Abdruckbuch. Enthält die Sigils der 72 Geister der Hierarchie.",
+        product6_name: "Krone der Weisheit",
+        product6_desc: "Zeremonieller Kopfschmuck aus Obsidian und karmesinrotem Stein. Verstärkt Intuition und Einsicht.",
+        btn_buy: "Jetzt Kaufen",
+        section_testimonials: "Worte der Bruderschaft",
+        testimonial1: '"Der Anhänger veränderte den Verlauf meines Lebens. Türen öffneten sich, von denen ich nie wusste, dass sie existierten."',
+        testimonial1_role: "33. Grad • Verifiziert",
+        testimonial2: '"Der Kodex enthüllte Wahrheiten, die keine Universität lehren konnte. Jeder Cent der Investition war es wert."',
+        testimonial2_role: "Großmeister • Verifiziert",
+        testimonial3: '"Ich trage den Siegelring täglich. Seine Präsenz gebietet Respekt in jedem Raum, den ich betrete."',
+        testimonial3_role: "Innerer Kreis • Verifiziert",
+        bespoke_badge: "Außerhalb des Marktes",
+        bespoke_title: "Maßgeschneiderte Artefakte & Aufträge",
+        bespoke_desc: "Für diejenigen, die nach Stücken jenseits unseres Katalogs suchen. Wir arbeiten mit einem ausgewählten Kreis von Meisterhandwerkern, um maßgeschneiderte Artefakte zu schaffen, die mit Ihren persönlichen Sigils und Absichten durchtränkt sind.",
+        bespoke1_title: "Maßgeschneiderte Regalia",
+        bespoke1_desc: "Zeremonielle Gewänder und Regalia, die nach Ihren genauen Spezifikationen und Ihrem Grad gefertigt werden.",
+        bespoke2_title: "Persönliches Grimoire",
+        bespoke2_desc: "Handgeschriebene Schattenbücher, gebunden in feinem Leder mit Ihrem Namen in karmesinroter Tinte.",
+        bespoke3_title: "Einzigartige Talismane",
+        bespoke3_desc: "Einzigartige Stücke, die für Ihre Reise der Erleuchtung und Macht geschaffen wurden.",
+        btn_consultation: "Beratung Anfordern",
+        bespoke_note: "Unser Concierge wird sich innerhalb von 24 Stunden bei Ihnen melden",
+        guarantee_title: "Garantie des Heiligen Eides",
+        guarantee_desc: "Jedes Artefakt wird vom Großen Rat authentifiziert. Wenn Ihr Kauf Ihre Erwartungen innerhalb von 30 Tagen nicht erfüllt, ehren wir eine vollständige Rückgabe — ohne Fragen. Ihr Vertrauen ist unser Bündnis.",
+        guarantee1: "Kostenloser Weltweiter Versand",
+        guarantee2: "Echtheitszertifikat",
+        guarantee3: "Diskrete Verpackung",
+        join_headline: "Zum Inneren Kreis Aufsteigen",
+        join_subtext: "Diejenigen, die Macht suchen, müssen ihren Wert beweisen. Treten Sie unserer exklusiven Mitgliedschaft bei und erhalten Sie Zugang zu eingeschränkten Auktionen, VIP-Vorschauen und privaten Zeremonien.",
+        btn_bespoke: "Maßgeschneiderten Service Anfordern",
+        modal_join_title: "Initiation Beantragen",
+        modal_bespoke_title: "Maßgeschneiderte Beratung",
+        label_name: "Vollständiger Name",
+        label_email: "E-Mail-Adresse",
+        label_message: "Nachricht",
+        label_vision: "Ihre Vision",
+        btn_submit: "Bewerbung Einreichen",
+        modal_join_note: "Ihre Bewerbung wird vom Großen Rat geprüft",
+        modal_bespoke_note: "Unsere Handwerker werden sich innerhalb von 48 Stunden bei Ihnen melden"
+      },
+      pt: {
+        nav_artifacts: "Artefatos",
+        nav_bespoke: "Sob Medida",
+        nav_testimonials: "Depoimentos",
+        btn_join: "JUNTAR-SE",
+        hero_headline: "Artefatos Exclusivos para os Iluminados",
+        hero_subtext: "Acesso ao conhecimento proibido, relíquias sagradas e ferramentas de ascensão. Reservado exclusivamente para aqueles que buscam a luz além do véu.",
+        btn_explore: "Explorar Artefatos",
+        btn_request: "Solicitar Iniciação",
+        trust_encrypted: "Criptografado",
+        trust_members: "Membros",
+        trust_countries: "Países",
+        trust_legacy: "Legado",
+        section_artifacts: "Artefatos Sagrados",
+        section_artifacts_desc: "Cada peça carrega o peso dos séculos. Forjada por mestres, imbuída de propósito.",
+        filter_all: "Todos os Artefatos",
+        filter_jewelry: "Joias",
+        filter_manuscripts: "Manuscritos",
+        filter_tools: "Ferramentas & Relíquias",
+        badge_limited: "Limitado",
+        badge_rare: "Raro",
+        badge_bestseller: "Mais Vendido",
+        badge_new: "Novo",
+        badge_sacred: "Sagrado",
+        product1_name: "O Pingente Onisciente",
+        product1_desc: "Pingente de ouro 24k forjado à mão com geometria sagrada. Usado pelo círculo interno desde o século XVIII.",
+        product2_name: "Códice da Iluminação",
+        product2_desc: "Manuscrito encadernado em couro contendo 33 graus de sabedoria oculta. Cada página inscrita à mão.",
+        product3_name: "Anel do Sigilo de Poder",
+        product3_desc: "Anel de selo de obsidiana e carmim. O design do pentáculo canaliza as energias antigas da Ordem.",
+        product4_name: "Adaga Cerimonial",
+        product4_desc: "Lâmina de aço damasco com cabo de laca carmim. Usada nos rituais mais elevados de iniciação.",
+        product5_name: "Selo de Salomão",
+        product5_desc: "Livro de impressões de selos de cera antigos. Contém os sigilos dos 72 espíritos da hierarquia.",
+        product6_name: "Coroa de Sabedoria",
+        product6_desc: "Adorno cerimonial elaborado em obsidiana e pedra carmim. Amplifica a intuição e a clarividência.",
+        btn_buy: "Comprar Agora",
+        section_testimonials: "Palavras da Fraternidade",
+        testimonial1: '"O pingente mudou a trajetória da minha vida. Portas se abriram que eu nunca soube que existiam."',
+        testimonial1_role: "33º Grau • Verificado",
+        testimonial2: '"O Códice revelou verdades que nenhuma universidade poderia ensinar. Cada centavo do investimento valeu a pena."',
+        testimonial2_role: "Grão-Mestre • Verificado",
+        testimonial3: '"Eu uso o Anel do Sigilo diariamente. Sua presença impõe respeito em cada sala que eu entro."',
+        testimonial3_role: "Círculo Interno • Verificado",
+        bespoke_badge: "Serviços Fora do Mercado",
+        bespoke_title: "Artefatos & Comissões Sob Medida",
+        bespoke_desc: "Para aqueles que buscam peças além do nosso catálogo. Trabalhamos com um círculo selecionado de mestres artesãos para criar artefatos personalizados imbuídos com seus sigilos e intenções pessoais.",
+        bespoke1_title: "Regalia Personalizada",
+        bespoke1_desc: "Vestimentas e regalia cerimoniais confeccionadas de acordo com suas especificações exatas e grau.",
+        bespoke2_title: "Grimório Pessoal",
+        bespoke2_desc: "Livros de sombras escritos à mão, encadernados em couro fino com seu nome em tinta carmim.",
+        bespoke3_title: "Talismãs Únicos",
+        bespoke3_desc: "Peças únicas criadas para sua jornada de iluminação e poder.",
+        btn_consultation: "Solicitar Consulta",
+        bespoke_note: "Nosso concierge entrará em contato em 24 horas",
+        guarantee_title: "Garantia do Juramento Sagrado",
+        guarantee_desc: "Cada artefato é autenticado pelo Grande Conselho. Se sua compra não atender suas expectativas em 30 dias, honramos uma devolução completa — sem perguntas. Sua confiança é nossa aliança.",
+        guarantee1: "Envio Mundial Gratuito",
+        guarantee2: "Certificado de Autenticidade",
+        guarantee3: "Embalagem Discreta",
+        join_headline: "Ascender ao Círculo Interno",
+        join_subtext: "Aqueles que buscam poder devem provar seu valor. Junte-se à nossa associação exclusiva e obtenha acesso a leilões restritos, prévias VIP e cerimônias privadas.",
+        btn_bespoke: "Solicitar Serviço Sob Medida",
+        modal_join_title: "Solicitar Iniciação",
+        modal_bespoke_title: "Consulta Sob Medida",
+        label_name: "Nome Completo",
+        label_email: "Endereço de Email",
+        label_message: "Mensagem",
+        label_vision: "Sua Visão",
+        btn_submit: "Enviar Solicitação",
+        modal_join_note: "Sua candidatura será revisada pelo Grande Conselho",
+        modal_bespoke_note: "Nossos artesãos entrarão em contato em 48 horas"
+      },
+      ar: {
+        nav_artifacts: "القطع الأثرية",
+        nav_bespoke: "حسب الطلب",
+        nav_testimonials: "الشهادات",
+        btn_join: "انضم إلينا",
+        hero_headline: "قطع أثرية حصرية للمستنيرين",
+        hero_subtext: "الوصول إلى المعرفة المحرمة والآثار المقدسة وأدوات التصعيد. محفوظة حصريًا لأولئك الذين يسعون إلى النور ما وراء الحجاب.",
+        btn_explore: "استكشف القطع الأثرية",
+        btn_request: "طلب التهيئة",
+        trust_encrypted: "مشفّر",
+        trust_members: "أعضاء",
+        trust_countries: "دول",
+        trust_legacy: "إرث",
+        section_artifacts: "الآثار المقدسة",
+        section_artifacts_desc: "كل قطعة تحمل ثقل القرون. صُنعت بأيدي الأساتذة، مشحونة بالغرض.",
+        filter_all: "جميع القطع الأثرية",
+        filter_jewelry: "المجوهرات",
+        filter_manuscripts: "المخطوطات",
+        filter_tools: "الأدوات والآثار",
+        badge_limited: "محدود",
+        badge_rare: "نادر",
+        badge_bestseller: "الأكثر مبيعًا",
+        badge_new: "جديد",
+        badge_sacred: "مقدس",
+        product1_name: "قلادة العين الشاملة",
+        product1_desc: "قلادة ذهب عيار 24 قيراطًا مُشكّلة يدويًا مع الهندسة المقدسة. ارتداها الدائرة الداخلية منذ القرن الثامن عشر.",
+        product2_name: "كوديكس التنوير",
+        product2_desc: "مخطوطة مُجلّدة بالجلد تحتوي على 33 درجة من الحكمة الخفية. كل صفحة مكتوبة باليد.",
+        product3_name: "خاتم ختم القوة",
+        product3_desc: "خاتم ختم من الأوبسيديان والقرمزي. تصميم النجمة الخماسية يوجّه طاقات النظام القديمة.",
+        product4_name: "خنجر طقسي",
+        product4_desc: "شفرة من فولاذ دمشقي بقبضة لاكيه قرمزية. تُستخدم في أعلى طقوس التهيئة.",
+        product5_name: "ختم سليمان",
+        product5_desc: "كتاب طبعات ختم شمع قديم. يحتوي على رموز 72 روحًا من التسلسل الهرمي.",
+        product6_name: "تاج الحكمة",
+        product6_desc: "تاج طقسي مصنوع من الأوبسيديان والحجر القرمزي. يُضخّم الحدس والبصيرة.",
+        btn_buy: "اشتري الآن",
+        section_testimonials: "كلمات من الأخوية",
+        testimonial1: '"غيّرت القلادة مسار حياتي. فُتحت أبواب لم أكن أعرف بوجودها."',
+        testimonial1_role: "الدرجة 33 • موثّق",
+        testimonial2: '"كشف الكوديكس حقائق لا جامعة تستطيع تعليمها. كل سنت من الاستثمار كان يستحق."',
+        testimonial2_role: "السيد الأكبر • موثّق",
+        testimonial3: '"أرتدي خاتم الختم يوميًا. حضوره يفرض الاحترام في كل غرفة أدخلها."',
+        testimonial3_role: "الدائرة الداخلية • موثّق",
+        bespoke_badge: "خدمات خارج السوق",
+        bespoke_title: "قطع أثرية وطلبات حسب الطلب",
+        bespoke_desc: "لأولئك الذين يبحثون عن قطع أخرى من كتالوجنا. نعمل مع دائرة مختارة من الحرفيين المتميزين لإنشاء قطع أثرية مخصصة مشحونة بأختامك ونواياك الشخصية.",
+        bespoke1_title: "زي طقسي مخصص",
+        bespoke1_desc: "ملابس ومجوهرات طقسية مصنوعة وفقًا لمواصفاتك الدقيقة ودرجتك.",
+        bespoke2_title: "كتاب سحر شخصي",
+        bespoke2_desc: "كتب سحر مكتوبة باليد، مُجلّدة بجلد فاخر مع اسمك بحبر قرمزي.",
+        bespoke3_title: "تمائم فريدة",
+        bespoke3_desc: "قطع فريدة من نوعها تم إنشاؤها لرحلتك نحو التنوير والقوة.",
+        btn_consultation: "طلب استشارة",
+        bespoke_note: "سيتواصل معك موظف الاستقبال خلال 24 ساعة",
+        guarantee_title: "ضمان العهد المقدس",
+        guarantee_desc: "كل قطعة أثرية يتم التحقق من أصالتها من قبل المجلس الأكبر. إذا لم يكن شراؤك على قدر توقعاتك خلال 30 يومًا، نحن نكرم الإرجاع الكامل — دون أسئلة. ثقتك هي عهدنا.",
+        guarantee1: "شحن مجاني عالمي",
+        guarantee2: "شهادة أصالة",
+        guarantee3: "تغليف مخفي",
+        join_headline: "صعد إلى الدائرة الداخلية",
+        join_subtext: "يجب على أولئك الذين يسعون إلى القوة إثبات جدارتهم. انضم إلى عضويتنا الحصرية واحصل على حق الوصول إلى المزادات المقيدة والمعاينات VIP والطقوس الخاصة.",
+        btn_bespoke: "طلب خدمة حسب الطلب",
+        modal_join_title: "طلب التهيئة",
+        modal_bespoke_title: "استشارة حسب الطلب",
+        label_name: "الاسم الكامل",
+        label_email: "عنوان البريد الإلكتروني",
+        label_message: "الرسالة",
+        label_vision: "رؤيتك",
+        btn_submit: "إرسال الطلب",
+        modal_join_note: "سيتم مراجعة طلبك من قبل المجلس الأكبر",
+        modal_bespoke_note: "سيتواصل حرفيونا معك خلال 48 ساعة"
+      }
+    };
+
+    let currentLang = 'fr';
+
+    function changeLanguage(lang) {
+      currentLang = lang;
+      document.documentElement.lang = lang;
+
+      // Update RTL for Arabic
+      if (lang === 'ar') {
+        document.body.setAttribute('dir', 'rtl');
+      } else {
+        document.body.setAttribute('dir', 'ltr');
+      }
+
+      // Update all elements with data-i18n attribute
+      const elements = document.querySelectorAll('[data-i18n]');
+      elements.forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (translations[lang] && translations[lang][key]) {
+          el.textContent = translations[lang][key];
+        }
+      });
+
+      // Update select values
+      document.getElementById('lang-selector').value = lang;
+      const mobileSelect = document.getElementById('lang-selector-mobile');
+      if (mobileSelect) mobileSelect.value = lang;
+
+      // Re-render Lucide icons
+      lucide.createIcons();
+    }
+
+    // Initialize with French
+    document.addEventListener('DOMContentLoaded', function() {
+      changeLanguage('fr');
+    });
+
+    lucide.createIcons();
+
+    const defaultConfig = {
+      site_title: 'THE ORDER',
+      hero_headline: 'Exclusive Artifacts for the Enlightened',
+      hero_subtext: 'Access forbidden knowledge, sacred relics, and tools of ascension. Reserved exclusively for those who seek the light beyond the veil.',
+      join_headline: 'Ascend to the Inner Circle',
+      join_subtext: 'Those who seek power must prove their worth. Join our exclusive membership and gain access to restricted auctions, VIP previews, and private ceremonies.',
+      background_color: '#0a0a0f',
+      surface_color: '#0d1b3e',
+      text_color: '#f5f0e8',
+      primary_action_color: '#dc143c',
+      secondary_action_color: '#8b0000',
+      font_family: 'Cormorant Garamond',
+      font_size: 16
+    };
+
+    function applyConfig(config) {
+      const c = { ...defaultConfig, ...config };
+      document.getElementById('nav-title').textContent = c.site_title;
+      document.getElementById('hero-headline').textContent = c.hero_headline;
+      document.getElementById('hero-subtext').textContent = c.hero_subtext;
+      document.getElementById('join-headline').textContent = c.join_headline;
+      document.getElementById('join-subtext').textContent = c.join_subtext;
+      document.body.style.fontFamily = `${c.font_family}, serif`;
+    }
+
+    window.elementSdk.init({
+      defaultConfig,
+      onConfigChange: async (config) => { applyConfig(config); },
+      mapToCapabilities: (config) => ({
+        recolorables: [
+          { get: () => config.background_color || defaultConfig.background_color, set: (v) => { config.background_color = v; window.elementSdk.setConfig({ background_color: v }); } },
+          { get: () => config.surface_color || defaultConfig.surface_color, set: (v) => { config.surface_color = v; window.elementSdk.setConfig({ surface_color: v }); } },
+          { get: () => config.text_color || defaultConfig.text_color, set: (v) => { config.text_color = v; window.elementSdk.setConfig({ text_color: v }); } },
+          { get: () => config.primary_action_color || defaultConfig.primary_action_color, set: (v) => { config.primary_action_color = v; window.elementSdk.setConfig({ primary_action_color: v }); } },
+          { get: () => config.secondary_action_color || defaultConfig.secondary_action_color, set: (v) => { config.secondary_action_color = v; window.elementSdk.setConfig({ secondary_action_color: v }); } }
+        ],
+        borderables: [],
+        fontEditable: {
+          get: () => config.font_family || defaultConfig.font_family,
+          set: (v) => { config.font_family = v; window.elementSdk.setConfig({ font_family: v }); }
+        },
+        fontSizeable: {
+          get: () => config.font_size || defaultConfig.font_size,
+          set: (v) => { config.font_size = v; window.elementSdk.setConfig({ font_size: v }); }
+        }
+      }),
+      mapToEditPanelValues: (config) => new Map([
+        ['site_title', config.site_title || defaultConfig.site_title],
+        ['hero_headline', config.hero_headline || defaultConfig.hero_headline],
+        ['hero_subtext', config.hero_subtext || defaultConfig.hero_subtext],
+        ['join_headline', config.join_headline || defaultConfig.join_headline],
+        ['join_subtext', config.join_subtext || defaultConfig.join_subtext]
+      ])
+    });
+
+    applyConfig(defaultConfig);
+
+    // Filter functionality
+    function filterProducts(category) {
+      const products = document.querySelectorAll('.product');
+      const buttons = document.querySelectorAll('.filter-btn');
+
+      buttons.forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+
+      products.forEach(product => {
+        if (category === 'all' || product.classList.contains(category)) {
+          product.style.display = 'block';
+          setTimeout(() => product.style.opacity = '1', 10);
+        } else {
+          product.style.opacity = '0';
+          setTimeout(() => product.style.display = 'none', 300);
+        }
+      });
+    }
+
+    // Form handlers
+    function handleJoinSubmit(e) {
+      e.preventDefault();
+      const messages = {
+        fr: '✓ Candidature soumise. Le Grand Conseil examinera votre demande.',
+        en: '✓ Application submitted. The Grand Council will review your request.',
+        es: '✓ Solicitud enviada. El Gran Consejo revisará su solicitud.',
+        de: '✓ Bewerbung eingereicht. Der Große Rat wird Ihre Anfrage prüfen.',
+        pt: '✓ Candidatura enviada. O Grande Conselho revisará sua solicitação.',
+        ar: '✓ تم إرسال الطلب. سيراجع المجلس الأكبر طلبك.'
+      };
+      alert(messages[currentLang] || messages['en']);
+      document.getElementById('join-modal').classList.add('hidden');
+      e.target.reset();
+    }
+
+    function handleBespokeSubmit(e) {
+      e.preventDefault();
+      const messages = {
+        fr: '✓ Demande de consultation envoyée. Nos artisans vous contacteront sous peu.',
+        en: '✓ Consultation request sent. Our artisans will contact you shortly.',
+        es: '✓ Solicitud de consulta enviada. Nuestros artesanos se pondrán en contacto pronto.',
+        de: '✓ Beratungsanfrage gesendet. Unsere Handwerker werden sich in Kürze bei Ihnen melden.',
+        pt: '✓ Solicitação de consulta enviada. Nossos artesãos entrarão em contato em breve.',
+        ar: '✓ تم إرسال طلب الاستشارة. سيتواصل حرفيونا معك قريبًا.'
+      };
+      alert(messages[currentLang] || messages['en']);
+      document.getElementById('bespoke-modal').classList.add('hidden');
+      e.target.reset();
+    }
+  </script>
+ </body>
+</html>
