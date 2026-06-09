@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html class="light" lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Aura. | Conciergerie de Luxe</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Inter:wght@100..900&display=swap" rel="stylesheet"/>
+<style>
+    .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+    }
+    .font-label-caps { font-family: 'Inter', sans-serif; text-transform: uppercase; }
+    .font-headline-sm { font-family: 'EB Garamond', serif; }
+    .font-headline-md { font-family: 'EB Garamond', serif; }
+    .font-display-lg { font-family: 'EB Garamond', serif; }
+    .font-body-md { font-family: 'Inter', sans-serif; }
+    .font-body-lg { font-family: 'Inter', sans-serif; }
+
+    .scale-102:hover { transform: scale(1.02); }
+    .transition-slow { transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1); }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #fcf9f8; }
+    ::-webkit-scrollbar-thumb { background: #002019; }
+
+
+    .glass-card {
+        backdrop-filter: blur(20px);
+        background: rgba(252, 249, 248, 0.95);
+    }
+
+    /* Mobile menu overlay */
+    .mobile-menu-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 32, 25, 0.95);
+        backdrop-filter: blur(20px);
+        z-index: 60;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .mobile-menu-overlay.active {
+        opacity: 1;
+        pointer-events: all;
+    }
+    .mobile-menu-overlay a {
+        color: #ffffff;
+        font-family: 'EB Garamond', serif;
+        font-size: 2rem;
+        font-weight: 500;
+        margin: 1rem 0;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .mobile-menu-overlay.active a {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    .mobile-menu-overlay.active a:nth-child(1) { transition-delay: 0.1s; }
+    .mobile-menu-overlay.active a:nth-child(2) { transition-delay: 0.2s; }
+    .mobile-menu-overlay.active a:nth-child(3) { transition-delay: 0.3s; }
+    .mobile-menu-overlay.active a:nth-child(4) { transition-delay: 0.4s; }
+    .mobile-menu-overlay.active a:nth-child(5) { transition-delay: 0.5s; }
+    .mobile-menu-overlay.active a:nth-child(6) { transition-delay: 0.6s; }
+
+    .mobile-close-btn {
+        position: absolute;
+        top: 1.25rem;
+        right: 1.25rem;
+        color: #ffffff;
+        cursor: pointer;
+    }
+
+    /* Nav padding overrides */
+    .nav-inner {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    @media (min-width: 768px) {
+        .nav-inner {
+            padding-left: 2rem;
+            padding-right: 2rem;
+        }
+    }
+    @media (min-width: 1280px) {
+        .nav-inner {
+            padding-left: 3rem;
+            padding-right: 3rem;
+        }
+    }
+
+    /* Social icon hover effects */
+    .social-icon {
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        opacity: 0.7;
+    }
+    .social-icon:hover {
+        transform: translateY(-3px);
+        opacity: 1;
+    }
+
+    /* WhatsApp floating button */
+    .whatsapp-float {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        z-index: 50;
+        width: 56px;
+        height: 56px;
+        background: #25D366;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4);
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    .whatsapp-float:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 30px rgba(37, 211, 102, 0.6);
+    }
+
+    /* Service card image hover zoom */
+    .service-card-img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        opacity: 0.15;
+    }
+    .service-card:hover .service-card-img {
+        transform: scale(1.08);
+        opacity: 0.25;
+    }
+
+    /* Toast notification */
+    .toast {
+        position: fixed;
+        bottom: 2rem;
+        left: 50%;
+        transform: translateX(-50%) translateY(100px);
+        background: #002019;
+        color: #ffffff;
+        padding: 1rem 2rem;
+        border-radius: 0.5rem;
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        letter-spacing: 0.05em;
+        z-index: 100;
+        opacity: 0;
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 10px 40px rgba(0, 32, 25, 0.3);
+        border: 1px solid rgba(202, 198, 190, 0.2);
+    }
+    .toast.show {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+    .toast.success {
+        border-left: 3px solid #25D366;
+    }
+    .toast.error {
+        border-left: 3px solid #ba1a1a;
+    }
+
+    /* Scroll to top button */
+    .scroll-top {
+        position: fixed;
+        bottom: 2rem;
+        left: 2rem;
+        z-index: 50;
+        width: 48px;
+        height: 48px;
+        background: #002019;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid rgba(202, 198, 190, 0.3);
+    }
+    .scroll-top.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    .scroll-top:hover {
+        background: #775928;
+        transform: translateY(-2px);
+    }
+
+    /* Page loader */
+    .page-loader {
+        position: fixed;
+        inset: 0;
+        background: #fcf9f8;
+        z-index: 200;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: opacity 0.6s ease, visibility 0.6s ease;
+    }
+    .page-loader.hidden {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+    }
+    .loader-text {
+        font-family: 'EB Garamond', serif;
+        font-size: 2rem;
+        color: #002019;
+        letter-spacing: 0.2em;
+        animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+        0%, 100% { opacity: 0.4; }
+        50% { opacity: 1; }
+    }
+
+    /* Smooth scroll */
+    html {
+        scroll-behavior: smooth;
+    }
+
+    /* Hero text shadow for readability */
+    .hero-text-shadow {
+        text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Hero image mobile fix */
+    @media (max-width: 768px) {
+        header .animate-subtle-zoom {
+            object-position: center 20% !important;
+        }
+    }
+</style>
+<script id="tailwind-config">
+    tailwind.config = {
+        darkMode: "class",
+        theme: {
+            extend: {
+                "colors": {
+                    "surface-container": "#f0eded",
+                    "surface-dim": "#dcd9d9",
+                    "on-tertiary-container": "#9a9890",
+                    "error": "#ba1a1a",
+                    "tertiary": "#1c1b16",
+                    "primary": "#002019",
+                    "on-secondary-fixed-variant": "#5d4213",
+                    "inverse-primary": "#accec2",
+                    "on-primary-fixed": "#002019",
+                    "tertiary-container": "#31302a",
+                    "primary-fixed-dim": "#accec2",
+                    "on-tertiary-fixed-variant": "#484740",
+                    "error-container": "#ffdad6",
+                    "surface-container-high": "#eae7e7",
+                    "on-primary": "#ffffff",
+                    "tertiary-fixed": "#e6e2d9",
+                    "surface": "#fcf9f8",
+                    "primary-fixed": "#c8eade",
+                    "outline": "#717975",
+                    "surface-container-low": "#f6f3f2",
+                    "on-error-container": "#93000a",
+                    "tertiary-fixed-dim": "#cac6be",
+                    "on-surface-variant": "#414845",
+                    "on-primary-fixed-variant": "#2e4d44",
+                    "on-primary-container": "#7e9e93",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-tint": "#46655b",
+                    "inverse-on-surface": "#f3f0ef",
+                    "secondary-fixed-dim": "#e8c086",
+                    "on-error": "#ffffff",
+                    "inverse-surface": "#303030",
+                    "secondary": "#775928",
+                    "surface-container-highest": "#e5e2e1",
+                    "on-tertiary-fixed": "#1c1c16",
+                    "on-secondary-container": "#7a5c2b",
+                    "on-tertiary": "#ffffff",
+                    "background": "#fcf9f8",
+                    "on-surface": "#1b1c1c",
+                    "secondary-container": "#ffd79b",
+                    "on-secondary": "#ffffff",
+                    "secondary-fixed": "#ffdeae",
+                    "primary-container": "#16352d",
+                    "on-secondary-fixed": "#281800",
+                    "surface-variant": "#e5e2e1",
+                    "outline-variant": "#c1c8c4",
+                    "surface-bright": "#fcf9f8",
+                    "on-background": "#1b1c1c"
+                },
+                "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+                },
+                "spacing": {
+                    "margin-desktop": "64px",
+                    "stack-lg": "80px",
+                    "margin-mobile": "20px",
+                    "container-max": "1280px",
+                    "gutter": "32px",
+                    "unit": "8px",
+                    "stack-sm": "16px",
+                    "stack-md": "32px"
+                },
+                "fontFamily": {
+                    "body-lg": ["Inter"],
+                    "button": ["Inter"],
+                    "headline-md": ["EB Garamond"],
+                    "headline-sm": ["EB Garamond"],
+                    "body-md": ["Inter"],
+                    "display-lg-mobile": ["EB Garamond"],
+                    "display-lg": ["EB Garamond"],
+                    "label-caps": ["Inter"]
+                },
+                "fontSize": {
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "button": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "headline-md": ["32px", {"lineHeight": "40px", "fontWeight": "500"}],
+                    "headline-sm": ["24px", {"lineHeight": "32px", "fontWeight": "500"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "display-lg-mobile": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.01em", "fontWeight": "500"}],
+                    "display-lg": ["64px", {"lineHeight": "72px", "letterSpacing": "-0.02em", "fontWeight": "500"}],
+                    "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "600"}]
+                }
+            },
+        },
+    }
+</script>
+
+<base target="_blank">
+</head>
+<body class="bg-background text-on-surface selection:bg-primary-fixed-dim selection:text-primary">
+
+<!-- Page Loader -->
+<div class="page-loader" id="page-loader">
+    <div class="loader-text">Aura.</div>
+</div>
+
+<!-- Toast Notification -->
+<div class="toast" id="toast"></div>
+
+<!-- WhatsApp Floating Button -->
+<a href="https://wa.me/233000000000?text=Bonjour%20Aura.,%20je%20souhaite%20en%20savoir%20plus%20sur%20vos%20services%20de%20conciergerie%20au%20Ghana." 
+   class="whatsapp-float" 
+   target="_blank"
+   aria-label="Contactez-nous sur WhatsApp">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+    </svg>
+</a>
+
+<!-- Mobile Menu Overlay -->
+<div class="mobile-menu-overlay" id="mobile-menu">
+    <span class="material-symbols-outlined mobile-close-btn" id="mobile-close" style="font-size: 2rem;">close</span>
+    <a href="index.html" target="_self" onclick="closeMobileMenu()" data-fr="Accueil" data-en="Home">Accueil</a>
+    <a href="about.html" target="_self" onclick="closeMobileMenu()" data-fr="Notre Histoire" data-en="Our Story">Notre Histoire</a>
+    <a href="#services" target="_self" onclick="closeMobileMenu()" data-fr="Services" data-en="Services">Services</a>
+    <a href="#contact" target="_self" onclick="closeMobileMenu()" data-fr="Contact" data-en="Contact">Contact</a>
+    <a href="https://wa.me/233000000000?text=Bonjour%20Aura.,%20je%20souhaite%20en%20savoir%20plus%20sur%20vos%20services%20de%20conciergerie%20au%20Ghana." onclick="closeMobileMenu()" target="_blank" data-fr="Prendre Contact" data-en="Get in Touch">Prendre Contact</a>
+    <div style="margin-top: 2rem; opacity: 0.5;">
+        <p style="color: #ffffff; font-family: 'Inter', sans-serif; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.2em;">Aura. Conciergerie</p>
+    </div>
+</div>
+
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-surface/95 backdrop-blur-xl border-b border-secondary/30">
+<div class="nav-inner flex justify-between items-center py-3 max-w-container-max mx-auto">
+<!-- Left: Logo -->
+<a href="index.html" class="font-headline-sm text-headline-sm tracking-widest text-primary shrink-0">Aura.</a>
+
+<!-- Center: Navigation Links (Desktop only) -->
+<div class="hidden md:flex gap-6 lg:gap-gutter items-center absolute left-1/2 -translate-x-1/2">
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-secondary transition-colors duration-500" href="index.html" target="_self" data-fr="Accueil" data-en="Home">Accueil</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-secondary transition-colors duration-500" href="about.html" target="_self" data-fr="Notre Histoire" data-en="Our Story">Notre Histoire</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-secondary transition-colors duration-500" href="#services" target="_self" data-fr="Services" data-en="Services">Services</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-secondary transition-colors duration-500" href="#contact" target="_self" data-fr="Contact" data-en="Contact">Contact</a>
+</div>
+
+<!-- Right: Actions -->
+<div class="flex items-center gap-2 md:gap-3 shrink-0">
+<a href="https://wa.me/233000000000?text=Bonjour%20Aura.,%20je%20souhaite%20en%20savoir%20plus%20sur%20vos%20services%20de%20conciergerie%20au%20Ghana." 
+   target="_blank"
+   class="hidden md:block px-4 lg:px-6 py-2 bg-primary text-on-primary font-label-caps text-label-caps scale-102 transition-transform duration-700 ease-in-out hover:bg-secondary transition-colors"
+   data-fr="Prendre Contact" 
+   data-en="Get in Touch">Prendre Contact</a>
+<button id="lang-toggle" class="hidden md:block font-label-caps text-label-caps text-secondary border border-secondary/30 px-2 lg:px-3 py-1 hover:bg-secondary hover:text-white transition-all duration-300">EN</button>
+<!-- Mobile: Lang toggle BEFORE menu toggle -->
+<button id="lang-toggle-mobile" class="md:hidden font-label-caps text-label-caps text-secondary border border-secondary/30 px-2 py-1 text-xs hover:bg-secondary hover:text-white transition-all duration-300">EN</button>
+<button id="mobile-menu-toggle" class="md:hidden flex items-center justify-center w-9 h-9 text-primary ml-1">
+<span class="material-symbols-outlined" style="font-size: 1.5rem;">menu</span>
+</button>
+</div>
+</div>
+</nav>
+
+<!-- Hero Section -->
+<header class="relative h-screen w-full flex items-center justify-center overflow-hidden">
+<div class="absolute inset-0 z-0">
+<div class="absolute inset-0 bg-gradient-to-b from-primary/30 via-primary/20 to-primary/40 z-10"></div>
+<img alt="Aura. Hero" class="w-full h-full object-cover object-center scale-105 animate-subtle-zoom" src="Gemini_Generated_Image_y3g76oy3g76oy3g7.png"/>
+</div>
+<div class="relative z-20 text-center px-margin-mobile md:px-0">
+<h1 class="font-display-lg text-display-lg-mobile md:text-display-lg text-white mb-stack-sm opacity-0 translate-y-8 transition-all duration-1000 ease-out animate-fade-in-up hero-text-shadow" data-fr="Votre Guide au Ghana, de A à Z" data-en="Your Complete Guide to Ghana">
+    Votre Guide au Ghana, de A à Z
+</h1>
+<p class="font-body-lg text-body-lg text-white/90 max-w-2xl mx-auto opacity-0 translate-y-8 transition-all duration-1000 delay-300 ease-out animate-fade-in-up hero-text-shadow" data-fr="Études, tourisme, business ou besoins personnels — Aura. prend tout en charge pour que votre séjour au Ghana soit simple, réussi et sans stress." data-en="Studies, tourism, business or personal needs — Aura. handles everything so your time in Ghana is smooth, successful and stress-free.">
+    Études, tourisme, business ou besoins personnels — Aura. prend tout en charge pour que votre séjour au Ghana soit simple, réussi et sans stress.
+</p>
+<div class="mt-stack-md opacity-0 translate-y-8 transition-all duration-1000 delay-500 ease-out animate-fade-in-up">
+<a class="inline-block font-label-caps text-label-caps text-white border-b border-white pb-1 hover:text-secondary-fixed transition-colors" href="#services" target="_self" data-fr="Découvrir nos Services" data-en="Discover our Services">Découvrir nos Services</a>
+</div>
+</div>
+</header>
+
+<main>
+<!-- Section 1: Notre Philosophie -->
+<section class="py-stack-lg px-6 md:px-margin-desktop max-w-container-max mx-auto text-center" id="philosophie">
+<div class="max-w-3xl mx-auto">
+<span class="font-label-caps text-label-caps text-secondary mb-4 block tracking-[0.2em]" data-fr="Qui Sommes-Nous" data-en="Who We Are">Qui Sommes-Nous</span>
+<h2 class="font-headline-md text-headline-md md:text-5xl text-primary mb-stack-md" data-fr="Votre Présence au Ghana, Entre de Bonnes Mains" data-en="Your Time in Ghana, In the Right Hands">Votre Présence au Ghana, Entre de Bonnes Mains</h2>
+<div class="h-px w-24 bg-secondary/30 mx-auto mb-stack-md"></div>
+<p class="font-body-lg text-body-lg text-on-surface-variant leading-relaxed" data-fr="Venir au Ghana pour la première fois — ou même la dixième — peut vite devenir compliqué sans les bons contacts. Aura. est la conciergerie qui vous évite les tâtonnements. Que vous veniez pour étudier, voyager, développer votre activité ou simplement profiter, nous sommes déjà là, avec les réponses, les contacts et les solutions. Un seul interlocuteur. Tout est géré." data-en="Coming to Ghana for the first time — or even the tenth — can quickly become overwhelming without the right contacts. Aura. is the concierge that spares you the guesswork. Whether you come to study, travel, grow your business or simply enjoy, we are already here — with the answers, the contacts, and the solutions. One point of contact. Everything handled.">
+    Venir au Ghana pour la première fois — ou même la dixième — peut vite devenir compliqué sans les bons contacts. Aura. est la conciergerie qui vous évite les tâtonnements. Que vous veniez pour étudier, voyager, développer votre activité ou simplement profiter, nous sommes déjà là, avec les réponses, les contacts et les solutions. Un seul interlocuteur. Tout est géré.
+</p>
+</div>
+</section>
+
+<!-- Section 2: Nos Domaines d'Excellence -->
+<section class="py-stack-lg bg-surface-container-low" id="services">
+<div class="px-6 md:px-margin-desktop max-w-container-max mx-auto">
+<div class="text-center mb-stack-lg">
+<span class="font-label-caps text-label-caps text-secondary mb-4 block tracking-[0.2em]" data-fr="Ce Que Nous Faisons" data-en="What We Do">Ce Que Nous Faisons</span>
+<h2 class="font-headline-md text-headline-md md:text-5xl text-primary mb-stack-md" data-fr="Tout ce Dont Vous Avez Besoin au Ghana" data-en="Everything You Need in Ghana">Tout ce Dont Vous Avez Besoin au Ghana</h2>
+<div class="h-px w-24 bg-secondary/30 mx-auto"></div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<div class="md:col-span-8 service-card group overflow-hidden bg-surface-container-lowest border border-secondary/10 relative h-[400px]">
+<img src="education.jpg" alt="Éducation" class="service-card-img">
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-surface-container-lowest/80 to-transparent z-10"></div>
+<div class="p-stack-md relative z-20 h-full flex flex-col justify-end">
+<span class="font-label-caps text-label-caps text-secondary mb-2">01</span>
+<h3 class="font-headline-md text-headline-md text-primary group-hover:text-secondary transition-colors" data-fr="Éducation" data-en="Education">Éducation</h3>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-md mt-2" data-fr="Aura. vous inscrit dans les meilleures universités, centres de formation et écoles de langue du Ghana — des établissements reconnus, triés sur le volet. Inscription, logement, installation : nous gérons tout, avec la précision qui nous définit." data-en="Aura. enrols you in Ghana's finest universities, vocational centres, and language schools — state-recognised, rigorously vetted. Enrolment, housing, settlement: we handle it all, with the precision that defines us.">Aura. vous inscrit dans les meilleures universités, centres de formation et écoles de langue du Ghana — des établissements reconnus, triés sur le volet. Inscription, logement, installation : nous gérons tout, avec la précision qui nous définit.</p>
+</div>
+<div class="absolute top-0 right-0 p-stack-md opacity-20 group-hover:opacity-100 transition-opacity z-20">
+<span class="material-symbols-outlined text-4xl text-secondary">school</span>
+</div>
+</div>
+<div class="md:col-span-4 service-card group overflow-hidden bg-primary text-white relative h-[400px]">
+<img src="tourisme.jpg" alt="Tourisme" class="service-card-img" style="opacity: 0.7;">
+<div class="absolute inset-0 bg-gradient-to-t from-primary via-primary/90 to-primary/70 z-10"></div>
+<div class="p-stack-md relative z-20 h-full flex flex-col justify-end">
+<span class="font-label-caps text-label-caps text-secondary-fixed mb-2">02</span>
+<h3 class="font-headline-md text-headline-md text-white" data-fr="Tourisme" data-en="Tourism">Tourisme</h3>
+<p class="font-body-md text-body-md text-white/70 mt-2" data-fr="Le Ghana révèle ses secrets à ceux qui savent où regarder. Nos concierges orchestrent chaque séjour : sites touristiques et attractifs exclusifs, guides privés, hébergements de caractère. Ici, personne ne se perd. Aura. trace le chemin." data-en="Ghana's finest experiences belong to those who know where to look. Our concierges curate every stay: exclusive touristics and entaitenements sites, private guides, handpicked stays. No one gets lost. Aura. knows the way.">Le Ghana révèle ses secrets à ceux qui savent où regarder. Nos concierges orchestrent chaque séjour : sites touristique et attractifs exclusifs, guides privés, hébergements de caractère. Ici, personne ne se perd. Aura. trace le chemin.</p>
+</div>
+<div class="absolute top-0 right-0 p-stack-md opacity-20 z-20">
+<span class="material-symbols-outlined text-4xl text-secondary-fixed">explore</span>
+</div>
+</div>
+<div class="md:col-span-4 service-card group overflow-hidden bg-surface-container-highest border border-secondary/10 relative h-[400px]">
+<img src="affaire.jpg" alt="Affaires" class="service-card-img">
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-highest via-surface-container-highest/80 to-transparent z-10"></div>
+<div class="p-stack-md relative z-20 h-full flex flex-col justify-end">
+<span class="font-label-caps text-label-caps text-secondary mb-2">03</span>
+<h3 class="font-headline-md text-headline-md text-primary group-hover:text-secondary transition-colors" data-fr="Affaires" data-en="Business">Affaires</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2" data-fr="Partenariats, sourcing, création d'entreprise — Aura. vous offre le soutien opérationnel qu'exige le marché ghanéen : interprètes, accompagnement terrain, mise en relation stratégique. Les bonnes connexions, au bon moment." data-en="Partnerships, sourcing, company formation — Aura. delivers the operational backbone Ghana's market demands: interpreters, ground support, strategic introductions. The right connections, at the right moment.">Partenariats, sourcing, création d'entreprise — Aura. vous offre le soutien opérationnel qu'exige le marché ghanéen : interprètes, accompagnement terrain, mise en relation stratégique. Les bonnes connexions, au bon moment.</p>
+</div>
+<div class="absolute top-0 right-0 p-stack-md opacity-20 group-hover:opacity-100 transition-opacity z-20">
+<span class="material-symbols-outlined text-4xl text-secondary">business_center</span>
+</div>
+</div>
+<div class="md:col-span-8 service-card group overflow-hidden border border-secondary/10 relative h-[400px]">
+<img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80" alt="Sur Mesure" class="service-card-img">
+<div class="absolute inset-0 bg-gradient-to-t from-surface/95 via-surface/80 to-transparent z-10"></div>
+<div class="p-stack-md relative z-20 h-full flex flex-col justify-end">
+<span class="font-label-caps text-label-caps text-secondary mb-2">04</span>
+<h3 class="font-headline-md text-headline-md text-primary" data-fr="Sur Mesure" data-en="Bespoke">Sur Mesure</h3>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-lg mt-2" data-fr="Assistance personnelle exclusive — notre pôle Sur Mesure répond aux demandes les plus singulières avec discrétion absolue. Un Liaison Dédié. Zéro compromis." data-en="Private chauffeur, high-protocol meetings, exclusive personal assistance — our Bespoke division handles the most singular requests with absolute discretion. One Dedicated Liaison. Zero compromise.">Assistance personnelle exclusive — notre pôle Sur Mesure répond aux demandes les plus singulières avec discrétion absolue. Un Liaison Dédié. Zéro compromis.</p>
+</div>
+<div class="absolute top-0 right-0 p-stack-md z-20">
+<span class="material-symbols-outlined text-4xl text-secondary" style="font-variation-settings: 'FILL' 1;">stars</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Section 3: Notre Méthode -->
+<section class="py-stack-lg px-6 md:px-margin-desktop max-w-container-max mx-auto">
+<div class="text-center mb-stack-lg">
+<span class="font-label-caps text-label-caps text-secondary mb-4 block tracking-[0.2em]" data-fr="Comment Ça Marche" data-en="How It Works">Comment Ça Marche</span>
+<h2 class="font-headline-md text-headline-md md:text-5xl text-primary mb-stack-md" data-fr="Simple. Rapide. Fiable." data-en="Simple. Fast. Reliable.">Simple. Rapide. Fiable.</h2>
+<div class="h-px w-24 bg-secondary/30 mx-auto mb-stack-md"></div>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto" data-fr="Vous nous dites ce que vous venez faire au Ghana. Nous prenons le relais. Pas de va-et-vient inutile, pas de mauvaises surprises — juste un service clair, bien organisé, à la hauteur de vos attentes." data-en="You tell us why you're coming to Ghana. We take it from there. No back-and-forth, no unpleasant surprises — just a clear, well-organised service that meets your expectations.">
+    Vous nous dites ce que vous venez faire au Ghana. Nous prenons le relais. Pas de va-et-vient inutile, pas de mauvaises surprises — juste un service clair, bien organisé, à la hauteur de vos attentes.
+</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-stack-lg mb-stack-lg">
+<div class="space-y-stack-sm group p-stack-md border border-secondary/10 hover:bg-surface-container-low transition-all duration-700">
+<div class="w-12 h-px bg-secondary transition-all duration-500 group-hover:w-full"></div>
+<h3 class="font-headline-sm text-headline-sm text-primary" data-fr="Discrétion" data-en="Discretion">Discrétion</h3>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed opacity-80" data-fr="Vos informations restent strictement confidentielles. Nous ne partageons rien — ni vos données, ni votre agenda, ni votre présence. Ce que vous nous confiez reste entre nous." data-en="Your information stays strictly confidential. We share nothing — not your data, your schedule, or your presence. What you entrust us with stays between us.">
+    Vos informations restent strictement confidentielles. Nous ne partageons rien — ni vos données, ni votre agenda, ni votre présence. Ce que vous nous confiez reste entre nous.
+</p>
+</div>
+<div class="space-y-stack-sm group p-stack-md border border-secondary/10 hover:bg-surface-container-low transition-all duration-700">
+<div class="w-12 h-px bg-secondary transition-all duration-500 group-hover:w-full"></div>
+<h3 class="font-headline-sm text-headline-sm text-primary" data-fr="Précision" data-en="Precision">Précision</h3>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed opacity-80" data-fr="Chaque demande est traitée avec soin, dans les délais convenus. Rien n'est laissé au hasard — de votre première inscription à votre dernier jour sur place, tout est pensé à l'avance." data-en="Every request is handled with care, within agreed timeframes. Nothing is left to chance — from your first enrolment to your last day on the ground, everything is planned ahead.">
+    Chaque demande est traitée avec soin, dans les délais convenus. Rien n'est laissé au hasard — de votre première inscription à votre dernier jour sur place, tout est pensé à l'avance.
+</p>
+</div>
+<div class="space-y-stack-sm group p-stack-md border border-secondary/10 hover:bg-surface-container-low transition-all duration-700">
+<div class="w-12 h-px bg-secondary transition-all duration-500 group-hover:w-full"></div>
+<h3 class="font-headline-sm text-headline-sm text-primary" data-fr="Expertise Locale" data-en="Local Expertise">Expertise Locale</h3>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed opacity-80" data-fr="Nous connaissons le Ghana de l'intérieur. Nos partenaires — universités, hôtels, entreprises, institutions — sont déjà sélectionnés pour vous. Vous bénéficiez d'un accès direct, sans perdre de temps à chercher." data-en="We know Ghana from the inside. Our partners — universities, hotels, businesses, institutions — are already vetted for you. You get direct access, without wasting time searching.">
+    Nous connaissons le Ghana de l'intérieur. Nos partenaires — universités, hôtels, entreprises, institutions — sont déjà sélectionnés pour vous. Vous bénéficiez d'un accès direct, sans perdre de temps à chercher.
+</p>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<div class="border-l-2 border-secondary pl-stack-sm py-stack-sm">
+<h4 class="font-label-caps text-label-caps text-primary mb-unit" data-fr="UN SEUL INTERLOCUTEUR" data-en="ONE POINT OF CONTACT">UN SEUL INTERLOCUTEUR</h4>
+<p class="font-body-md text-body-md text-on-surface-variant" data-fr="Dès votre première demande, un conseiller Aura. vous est attribué personnellement. Il répond à vos questions, suit l'avancement de vos démarches et reste disponible à chaque étape de votre projet." data-en="From your very first request, a dedicated Aura. advisor is assigned to you personally. They answer your questions, track your progress and stay available at every stage of your journey.">
+    Dès votre première demande, un conseiller Aura. vous est attribué personnellement. Il répond à vos questions, suit l'avancement de vos démarches et reste disponible à chaque étape de votre projet.
+</p>
+</div>
+<div class="border-l-2 border-secondary pl-stack-sm py-stack-sm">
+<h4 class="font-label-caps text-label-caps text-primary mb-unit" data-fr="RÉPONSE SOUS 2 HEURES" data-en="RESPONSE WITHIN 2 HOURS">RÉPONSE SOUS 2 HEURES</h4>
+<p class="font-body-md text-body-md text-on-surface-variant" data-fr="Envoyez votre demande, et vous aurez une réponse claire dans les deux heures. Pas de formulaires interminables, pas d'attente frustrante — juste un retour rapide et utile pour avancer sereinement." data-en="Send your enquiry and you'll receive a clear response within two hours. No endless forms, no frustrating waits — just a fast, useful reply to help you move forward with confidence.">
+    Envoyez votre demande, et vous aurez une réponse claire dans les deux heures. Pas de formulaires interminables, pas d'attente frustrante — juste un retour rapide et utile pour avancer sereinement.
+</p>
+</div>
+</div>
+</section>
+
+<!-- Section 4: Témoignages -->
+<section class="py-stack-lg bg-primary text-on-primary">
+<div class="px-6 md:px-margin-desktop max-w-container-max mx-auto">
+<div class="text-center mb-stack-lg">
+<span class="font-label-caps text-label-caps text-secondary-fixed mb-4 block tracking-[0.2em]" data-fr="Ils Nous Font Confiance" data-en="They Trust Us">Ils Nous Font Confiance</span>
+<h2 class="font-headline-md text-headline-md md:text-5xl text-on-primary mb-stack-md" data-fr="Ce Qu'ils Disent d'Aura." data-en="What They Say About Aura.">Ce Qu'ils Disent d'Aura.</h2>
+<div class="h-px w-24 bg-secondary-fixed/30 mx-auto"></div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<div class="bg-primary-container p-stack-lg border border-secondary/20 hover:border-secondary-fixed/40 transition-colors duration-500">
+<div class="mb-stack-md">
+<span class="material-symbols-outlined text-secondary-fixed text-3xl">format_quote</span>
+</div>
+<p class="font-body-lg text-body-lg text-on-primary-container leading-relaxed mb-stack-md italic" data-fr="Je venais pour un partenariat commercial et je ne connaissais personne à Accra. En 48h, Aura. avait organisé mes rendez-vous, mon logement et un interprète. Je suis revenu trois fois depuis." data-en="I came for a business partnership and knew no one in Accra. Within 48 hours, Aura. had organised my meetings, accommodation and an interpreter. I've been back three times since.">
+    Je venais pour un partenariat commercial et je ne connaissais personne à Accra. En 48h, Aura. avait organisé mes rendez-vous, mon logement et un interprète. Je suis revenu trois fois depuis.
+</p>
+<div class="border-t border-secondary/20 pt-stack-sm">
+<p class="font-label-caps text-label-caps text-secondary-fixed">Arnaud A.</p>
+<p class="font-body-md text-body-md text-on-primary-container opacity-60" data-fr="Web Entrepreneur - Calavi" data-en="Web Entrepreneur - Calavi, ">Web Entrepreneur - Calavi</p>
+</div>
+</div>
+<div class="bg-primary-container p-stack-lg border border-secondary/20 hover:border-secondary-fixed/40 transition-colors duration-500">
+<div class="mb-stack-md">
+<span class="material-symbols-outlined text-secondary-fixed text-3xl">format_quote</span>
+</div>
+<p class="font-body-lg text-body-lg text-on-primary-container leading-relaxed mb-stack-md italic" data-fr="Mon fils souhaitait étudier au Ghana. Aura. a géré toute l'inscription, le logement et son installation. On n'a eu à s'occuper de rien. C'est exactement ce dont on avait besoin." data-en="My son wanted to study in Ghana. Aura. handled the entire enrolment, accommodation and move-in. We didn't have to deal with anything ourselves. Exactly what we needed.">
+    Mon fils souhaitait étudier au Ghana. Aura. a géré toute l'inscription, le logement et son installation. On n'a eu à s'occuper de rien. C'est exactement ce dont on avait besoin.
+</p>
+<div class="border-t border-secondary/20 pt-stack-sm">
+<p class="font-label-caps text-label-caps text-secondary-fixed">Mrs Mary A.</p>
+<p class="font-body-md text-body-md text-on-primary-container opacity-60" data-fr="Parent d'Étudiant – Porto-Novo" data-en="Student's Parent - Porto-Novo">Parent d'Étudiant – Porto-Novo</p>
+</div>
+</div>
+<div class="bg-primary-container p-stack-lg border border-secondary/20 hover:border-secondary-fixed/40 transition-colors duration-500">
+<div class="mb-stack-md">
+<span class="material-symbols-outlined text-secondary-fixed text-3xl">format_quote</span>
+</div>
+<p class="font-body-lg text-body-lg text-on-primary-container leading-relaxed mb-stack-md italic" data-fr="Je voulais visiter le Ghana sans passer des heures sur Google. Aura. m'a concocté un programme complet — lieux, guides, hôtels. Un voyage fluide du début à la fin." data-en="I wanted to visit Ghana without spending hours on Google. Aura. put together a full programme — sites, guides, hotels. A seamless trip from start to finish.">
+    Je voulais visiter le Ghana sans passer des heures sur Google. Aura. m'a concocté un programme complet — lieux, guides, hôtels. Un voyage fluide du début à la fin.
+</p>
+<div class="border-t border-secondary/20 pt-stack-sm">
+<p class="font-label-caps text-label-caps text-secondary-fixed">Jonhatan O.</p>
+<p class="font-body-md text-body-md text-on-primary-container opacity-60" data-fr="Investisseur - Abidjan" data-en="Investor - Abidjan">Investisseur - Abidjan</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Section 5: Contact -->
+<section class="py-stack-lg px-6 md:px-margin-desktop max-w-container-max mx-auto" id="contact">
+<div class="text-center mb-16 md:mb-24">
+<h2 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-primary mb-4" data-fr="Parlez-nous de Votre Projet" data-en="Tell Us About Your Project">Parlez-nous de Votre Projet</h2>
+<div class="w-16 h-px bg-secondary mx-auto"></div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter items-start">
+<div class="md:col-span-4 order-2 md:order-1 mt-12 md:mt-0 flex flex-col gap-10">
+<div class="border-l border-secondary/30 pl-8 py-2">
+<p class="font-label-caps text-label-caps text-secondary mb-2" data-fr="Notre Engagement" data-en="Our Commitment">Notre Engagement</p>
+<h3 class="font-headline-sm text-headline-sm text-primary mb-3" data-fr="Réponse sous 2 heures" data-en="Response within 2 Hours">Réponse sous 2 heures</h3>
+<p class="font-body-md text-on-surface-variant leading-relaxed" data-fr="Dès que vous soumettez votre demande, un conseiller Aura. prend contact avec vous rapidement pour comprendre votre situation et vous proposer la meilleure solution." data-en="As soon as you submit your request, an Aura. advisor contacts you promptly to understand your situation and propose the best solution.">
+    Chaque interaction est traitée avec le plus haut niveau de confidentialité, conformément aux protocoles de conciergerie de luxe. Vos données ne sont jamais partagées.
+</p>
+</div>
+<div class="border-l border-secondary/30 pl-8 py-2">
+<p class="font-label-caps text-label-caps text-secondary mb-2" data-fr="Confidentialité" data-en="Confidentiality">Confidentialité</p>
+<h3 class="font-headline-sm text-headline-sm text-primary mb-3" data-fr="Vos Données Restent Privées" data-en="Your Data Stays Private">Vos Données Restent Privées</h3>
+<p class="font-body-md text-on-surface-variant leading-relaxed" data-fr="Tout ce que vous partagez avec Aura. reste strictement confidentiel. Vos informations ne sont jamais transmises à des tiers, pour quelque raison que ce soit." data-en="Everything you share with Aura. remains strictly confidential. Your information is never passed to third parties, for any reason whatsoever.">
+    Notre équipe de gestionnaires de comptes dédiés assure une réponse rapide et personnalisée à toutes les demandes de renseignements premium.
+</p>
+</div>
+<div class="relative w-full aspect-[4/5] overflow-hidden bg-surface-dim">
+<img alt="Luxury interior" class="w-full h-full object-cover grayscale opacity-80" src="unnamed.png"/>
+</div>
+</div>
+<div class="md:col-span-7 md:col-start-6 order-1 md:order-2">
+<form id="contact-form" class="flex flex-col gap-12" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+<div class="relative">
+<label class="font-label-caps text-label-caps text-on-surface-variant block mb-2" for="name" data-fr="Nom Complet" data-en="Full Name">Nom Complet</label>
+<input class="w-full bg-transparent border-t-0 border-x-0 border-b border-secondary/30 focus:border-primary focus:ring-0 px-0 py-3 transition-colors duration-300 font-body-lg text-body-lg placeholder:text-surface-dim" id="name" name="name" placeholder="Votre nom et prénom" type="text" required/>
+</div>
+<div class="relative">
+<label class="font-label-caps text-label-caps text-on-surface-variant block mb-2" for="email" data-fr="Adresse Email" data-en="Email Address">Adresse Email</label>
+<input class="w-full bg-transparent border-t-0 border-x-0 border-b border-secondary/30 focus:border-primary focus:ring-0 px-0 py-3 transition-colors duration-300 font-body-lg text-body-lg placeholder:text-surface-dim" id="email" name="email" placeholder="votre@email.com" type="email" required/>
+</div>
+<div class="relative">
+<label class="font-label-caps text-label-caps text-on-surface-variant block mb-2" for="inquiry" data-fr="Nature de la Demande" data-en="Nature of Inquiry">Nature de la Demande</label>
+<select class="w-full bg-transparent border-t-0 border-x-0 border-b border-secondary/30 focus:border-primary focus:ring-0 px-0 py-3 transition-colors duration-300 font-body-lg text-body-lg appearance-none cursor-pointer" id="inquiry" name="inquiry">
+<option value="Éducation">Éducation</option>
+<option value="Tourisme">Tourisme</option>
+<option value="Affaires">Affaires</option>
+<option value="Sur Mesure">Sur Mesure</option>
+</select>
+<div class="absolute right-0 bottom-4 pointer-events-none">
+<span class="material-symbols-outlined text-secondary">expand_more</span>
+</div>
+</div>
+<div class="relative">
+<label class="font-label-caps text-label-caps text-on-surface-variant block mb-2" for="message" data-fr="Message" data-en="Message">Message</label>
+<textarea class="w-full bg-transparent border-t-0 border-x-0 border-b border-secondary/30 focus:border-primary focus:ring-0 px-0 py-3 transition-colors duration-300 font-body-lg text-body-lg placeholder:text-surface-dim resize-none" id="message" name="message" placeholder="Comment pouvons-nous vous assister ?" rows="4" required></textarea>
+</div>
+<div class="pt-6">
+<button class="w-full md:w-auto px-12 py-5 bg-primary text-on-primary font-label-caps text-label-caps tracking-widest hover:bg-secondary-container hover:text-on-secondary-container transition-all duration-500 scale-100 hover:scale-[1.02] active:scale-[0.98]" type="submit" data-fr="ENVOYER LA DEMANDE" data-en="SEND INQUIRY">
+    ENVOYER LA DEMANDE
+</button>
+</div>
+</form>
+<div class="mt-16 flex items-center gap-6 text-on-surface-variant">
+<span class="h-px w-12 bg-secondary/30"></span>
+<p class="font-body-md italic opacity-60" data-fr="Vous avez le projet. Nous avons les solutions." data-en="You have the project. We have the solutions.">"Vous avez le projet. Nous avons les solutions."</p>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Section 6: Call to Action -->
+<section class="relative h-[80vh] flex items-center justify-center overflow-hidden mb-stack-lg">
+<div class="absolute inset-0 z-0">
+<img src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=1920&q=80" 
+     alt="Luxury interior" 
+     class="w-full h-full object-cover"
+     style="position: absolute; inset: 0;"
+     loading="lazy">
+<div class="absolute inset-0 bg-gradient-to-b from-primary/40 via-primary/50 to-primary/60" style="z-index: 1;"></div>
+</div>
+<div class="relative z-10 glass-card p-stack-lg max-w-2xl text-center border border-secondary/30 mx-margin-mobile">
+<span class="font-label-caps text-label-caps text-secondary mb-unit block" data-fr="PRÊT À COMMENCER ?" data-en="READY TO START?">PRÊT À COMMENCER ?</span>
+<h2 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-primary mb-stack-md" data-fr="Dites-nous Pourquoi Vous Venez" data-en="Tell Us Why You're Coming">Dites-nous Pourquoi Vous Venez</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-stack-md italic" data-fr="Études, tourisme, business ou service sur mesure — nous avons ce qu'il faut. Partagez votre projet, nous nous occupons du reste." data-en="Studies, tourism, business or bespoke service — we've got you covered. Share your project, we handle the rest.">
+    Études, tourisme, business ou service sur mesure — nous avons ce qu'il faut. Partagez votre projet, nous nous occupons du reste.
+</p>
+<a href="https://wa.me/233000000000?text=Bonjour%20Aura.,%20je%20souhaite%20en%20savoir%20plus%20sur%20vos%20services%20de%20conciergerie%20au%20Ghana." 
+   target="_blank"
+   class="group flex items-center gap-unit mx-auto font-label-caps text-label-caps text-primary hover:text-secondary transition-colors">
+    <span data-fr="NOUS CONTACTER" data-en="CONTACT US">NOUS CONTACTER</span>
+    <span class="material-symbols-outlined transition-transform duration-300 group-hover:translate-x-2">arrow_forward</span>
+</a>
+</div>
+</section>
+</main>
+
+<!-- Footer -->
+<footer class="bg-primary border-t border-secondary/20">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter px-6 md:px-margin-desktop py-stack-lg max-w-container-max mx-auto">
+<div class="flex flex-col gap-stack-sm">
+<span class="font-headline-md text-headline-md text-secondary-fixed">Aura.</span>
+<p class="font-body-md text-body-md text-on-primary-container max-w-xs" data-fr="Votre partenaire de confiance pour étudier, voyager, faire des affaires et vivre au Ghana — avec élégance et sérénité." data-en="Your trusted partner for studying, travelling, doing business and living in Ghana — with elegance and peace of mind.">
+    Votre partenaire de confiance pour étudier, voyager, faire des affaires et vivre au Ghana — avec élégance et sérénité.
+</p>
+<!-- Social Media Icons -->
+<div class="flex items-center gap-4 mt-4">
+    <!-- TikTok -->
+    <a href="https://tiktok.com/@aura.conciergerie" target="_blank" class="social-icon" aria-label="TikTok">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#cac6be" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/>
+        </svg>
+    </a>
+    <!-- Instagram -->
+    <a href="https://instagram.com/aura.conciergerie" target="_blank" class="social-icon" aria-label="Instagram">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#cac6be" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+        </svg>
+    </a>
+    <!-- Facebook -->
+    <a href="https://facebook.com/aura.conciergerie" target="_blank" class="social-icon" aria-label="Facebook">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#cac6be" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+        </svg>
+    </a>
+    <!-- WhatsApp -->
+    <a href="https://wa.me/233000000000?text=Bonjour%20Aura.,%20je%20souhaite%20en%20savoir%20plus%20sur%20vos%20services%20de%20conciergerie%20au%20Ghana." target="_blank" class="social-icon" aria-label="WhatsApp">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#cac6be" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+        </svg>
+    </a>
+</div>
+</div>
+<div class="flex flex-col gap-4">
+<h4 class="font-label-caps text-label-caps text-secondary-fixed-dim" data-fr="Le Collectif" data-en="The Collective">Le Collectif</h4>
+<ul class="flex flex-col gap-2">
+<li><a class="font-body-md text-body-md text-on-primary-container hover:text-secondary-fixed-dim transition-colors" href="services.html" data-fr="La Collection" data-en="The Collection">La Collection</a></li>
+<li><a class="font-body-md text-body-md text-on-primary-container hover:text-secondary-fixed-dim transition-colors" href="#" data-fr="Adhésion Privée" data-en="Private Membership">Adhésion Privée</a></li>
+<li><a class="font-body-md text-body-md text-on-primary-container hover:text-secondary-fixed-dim transition-colors" href="#" data-fr="Résidence Ghana" data-en="Ghana Residency">Résidence Ghana</a></li>
+<li><a class="font-body-md text-body-md text-on-primary-container hover:text-secondary-fixed-dim transition-colors" href="#" data-fr="Affaires Bénin" data-en="Benin Affairs">Affaires Bénin</a></li>
+</ul>
+</div>
+<div class="flex flex-col gap-4">
+<h4 class="font-label-caps text-label-caps text-secondary-fixed-dim" data-fr="Protocoles" data-en="Protocols">Protocoles</h4>
+<ul class="flex flex-col gap-2">
+<li><a class="font-body-md text-body-md text-on-primary-container hover:text-secondary-fixed-dim transition-colors" href="privacy.html" data-fr="Protocole de Confidentialité" data-en="Privacy Protocol">Protocole de Confidentialité</a></li>
+<li><a class="font-body-md text-body-md text-on-primary-container hover:text-secondary-fixed-dim transition-colors" href="discretion.html" data-fr="Accord de Discrétion" data-en="Client Discretion Agreement">Accord de Discrétion</a></li>
+<li><a class="font-body-md text-body-md text-on-primary-container hover:text-secondary-fixed-dim transition-colors" href="terms.html" data-fr="Conditions de Service" data-en="Terms of Service">Conditions de Service</a></li>
+</ul>
+<div class="mt-4 flex gap-4">
+<span class="material-symbols-outlined text-secondary-fixed">fingerprint</span>
+<span class="material-symbols-outlined text-secondary-fixed">security</span>
+</div>
+</div>
+</div>
+<div class="px-6 md:px-margin-desktop py-stack-sm border-t border-white/5 max-w-container-max mx-auto text-center md:text-left">
+<p class="font-body-md text-body-md text-on-primary-container/60">
+    © 2024 Aura. Luxury Concierge. <span data-fr="Défini par la Discrétion." data-en="Defined by Discretion.">Défini par la Discrétion.</span>
+</p>
+</div>
+</footer>
+
+<script>
+    // Page Loader - hide after load
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            document.getElementById('page-loader').classList.add('hidden');
+        }, 800);
+    });
+
+    // Toast notification system
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.className = 'toast ' + type;
+        toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 4000);
+    }
+
+    // Mobile Menu Logic
+    const mobileMenu = document.getElementById('mobile-menu');
+    const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+    const mobileClose = document.getElementById('mobile-close');
+
+    function openMobileMenu() {
+        mobileMenu.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeMobileMenu() {
+        mobileMenu.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    mobileMenuToggle.addEventListener('click', openMobileMenu);
+    mobileClose.addEventListener('click', closeMobileMenu);
+
+    // Close on escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeMobileMenu();
+    });
+
+    // Language Toggle
+    let currentLang = 'fr';
+
+    function toggleLanguage() {
+        currentLang = currentLang === 'fr' ? 'en' : 'fr';
+        document.documentElement.lang = currentLang;
+
+        // Update all elements with data-fr and data-en
+        document.querySelectorAll('[data-fr][data-en]').forEach(el => {
+            if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+                el.placeholder = el.getAttribute('data-' + currentLang);
+            } else {
+                el.textContent = el.getAttribute('data-' + currentLang);
+            }
+        });
+
+        // Update toggle buttons
+        const btnText = currentLang === 'fr' ? 'EN' : 'FR';
+        const desktopToggle = document.getElementById('lang-toggle');
+        const mobileToggle = document.getElementById('lang-toggle-mobile');
+        if (desktopToggle) desktopToggle.textContent = btnText;
+        if (mobileToggle) mobileToggle.textContent = btnText;
+
+        // Update WhatsApp links language
+        updateWhatsAppLinks();
+    }
+
+    function updateWhatsAppLinks() {
+        const frMsg = 'Bonjour%20Aura.,%20je%20souhaite%20en%20savoir%20plus%20sur%20vos%20services%20de%20conciergerie%20au%20Ghana.';
+        const enMsg = 'Hello%20Aura.,%20I%20would%20like%20to%20know%20more%20about%20your%20concierge%20services%20in%20Ghana.';
+        const msg = currentLang === 'fr' ? frMsg : enMsg;
+        const waUrl = 'https://wa.me/233000000000?text=' + msg;
+
+        document.querySelectorAll('a[href^="https://wa.me/"]').forEach(link => {
+            link.href = waUrl;
+        });
+    }
+
+    document.getElementById('lang-toggle').addEventListener('click', toggleLanguage);
+    document.getElementById('lang-toggle-mobile').addEventListener('click', toggleLanguage);
+
+    // Form submission with Formspree
+    const contactForm = document.getElementById('contact-form');
+    contactForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = contactForm.querySelector('button[type="submit"]');
+        const originalText = btn.textContent;
+
+        // Show loading state
+        btn.textContent = currentLang === 'fr' ? 'Envoi en cours...' : 'Sending...';
+        btn.disabled = true;
+        btn.style.opacity = '0.7';
+
+        try {
+            const formData = new FormData(contactForm);
+            const response = await fetch(contactForm.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                showToast(
+                    currentLang === 'fr' ? 'Votre demande a été envoyée avec succès.' : 'Your inquiry has been sent successfully.',
+                    'success'
+                );
+                contactForm.reset();
+            } else {
+                throw new Error('Form submission failed');
+            }
+        } catch (error) {
+            // Fallback: open mailto if Formspree fails or isn't configured
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const inquiry = document.getElementById('inquiry').value;
+            const message = document.getElementById('message').value.trim();
+
+            const subject = encodeURIComponent('Nouvelle demande - ' + inquiry + ' | Aura. Conciergerie');
+            const body = encodeURIComponent(
+                'Bonjour Aura.,' + '%0A%0A' +
+                'Je vous contacte via votre site web pour la demande suivante :' + '%0A%0A' +
+                '---' + '%0A' +
+                'NOM : ' + name + '%0A' +
+                'EMAIL : ' + email + '%0A' +
+                'NATURE DE LA DEMANDE : ' + inquiry + '%0A' +
+                'MESSAGE : ' + message + '%0A' +
+                '---' + '%0A%0A' +
+                'Cordialement,' + '%0A' +
+                name
+            );
+
+            window.open('mailto:contact@aura-conciergerie.com?subject=' + subject + '&body=' + body, '_blank');
+            showToast(
+                currentLang === 'fr' ? 'Votre client mail a été ouvert avec les informations pré-remplies.' : 'Your mail client opened with pre-filled details.',
+                'success'
+            );
+        } finally {
+            btn.textContent = originalText;
+            btn.disabled = false;
+            btn.style.opacity = '1';
+        }
+    });
+
+    // Scroll to top button visibility
+    const scrollTopBtn = document.getElementById('scroll-top');
+    window.addEventListener('scroll', () => {
+        if (window.pageYOffset > 500) {
+            scrollTopBtn.classList.add('visible');
+        } else {
+            scrollTopBtn.classList.remove('visible');
+        }
+    });
+
+    // Simple animation on scroll
+    const observerOptions = {
+        threshold: 0.1
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('animate-fade-in-up-visible');
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('section').forEach(section => {
+        section.classList.add('opacity-0', 'translate-y-4', 'transition-all', 'duration-1000');
+        observer.observe(section);
+    });
+
+    // Add custom styles for the observer animations
+    const style = document.createElement('style');
+    style.innerHTML = `
+        .animate-fade-in-up { animation: fadeInUp 1.2s forwards; }
+        .animate-fade-in-up-visible { opacity: 1 !important; transform: translateY(0) !important; }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes subtle-zoom {
+            from { transform: scale(1.05); }
+            to { transform: scale(1.15); }
+        }
+        .animate-subtle-zoom {
+            animation: subtle-zoom 20s infinite alternate ease-in-out;
+        }
+    `;
+    document.head.appendChild(style);
+
+
+
+    
+    // Smooth scroll with offset for fixed nav
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                const navHeight = document.querySelector('nav').offsetHeight;
+                const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - navHeight - 20;
+                window.scrollTo({
+                    top: targetPosition,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+
+    // Form input interactions
+    const inputs = document.querySelectorAll('input, select, textarea');
+    inputs.forEach(input => {
+        input.addEventListener('focus', () => {
+            if (input.previousElementSibling) {
+                input.previousElementSibling.classList.add('text-primary');
+                input.previousElementSibling.classList.remove('text-on-surface-variant');
+            }
+        });
+        input.addEventListener('blur', () => {
+            if (input.previousElementSibling) {
+                input.previousElementSibling.classList.remove('text-primary');
+                input.previousElementSibling.classList.add('text-on-surface-variant');
+            }
+        });
+    });
+</script>
+</body>
+</html>
